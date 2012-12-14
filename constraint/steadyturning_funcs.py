@@ -1,5 +1,55 @@
 #========================
 #print ('built functions')
+from dtk import bicycle as bi
+from scipy.optimize import newton
+
+def pitch_from_roll_and_steer(q2, q4, rF, rR, d1, d2, d3, guess=None):
+    """Returns the pitch angle from equation derived from holonomic equation.
+    Parameter
+    ---------
+    q2: float
+        Lean angle.
+    q4: float
+        Steer angle.
+    rF: float
+        Front wheel radius.
+    rR: float
+        Rear wheel radius.
+    d1 : float
+        The distance from the rear wheel center to the steer axis.
+    d2 : float
+        The distance between the front and rear wheel centers along the steer
+        axis.
+    d3 : float
+        The distance from the front wheel center to the steer axis.
+
+    Return
+    ------
+    q3: float
+        Pitch angle.
+    """
+
+    def pitch_constraint(q3, q2, q4, rF, rR, d1, d2, d3):
+        zero = -d1*sin(q3)*cos(q2) - rR*cos(q2) + \
+        (d2 + rF*cos(q2)*cos(q3)/sqrt((sin(q2)*sin(q4) - 
+        sin(q3)*cos(q2)*cos(q4))**2 + 
+        cos(q2)**2*cos(q3)**2))*cos(q2)*cos(q3) + \
+        (d3 + rF*(sin(q2)*sin(q4) - sin(q3)*cos(q2)*
+        cos(q4))/sqrt((sin(q2)*sin(q4) - 
+        sin(q3)*cos(q2)*cos(q4))**2 + cos(q2)**2*
+        cos(q3)**2))*(sin(q2)*sin(q4) - sin(q3)*cos(q2)*cos(q4))
+        
+        return zero
+
+    if guess is None:
+        # guess based on steer and roll being both zero
+        guess = bi.lambda_from_abc(rF, rR, d1, d3, d2)
+
+    args = (q2, q4, rF, rR, d1, d2, d3)
+
+    q3 = newton(pitch_constraint, guess, args=args)
+
+    return q3
 
 def configuration(lean, steer):
     """Returns the configuration of steady turning in lean, steer
