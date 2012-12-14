@@ -2,6 +2,19 @@
 #print ('built functions')
 from dtk import bicycle as bi
 from scipy.optimize import newton
+import sympy as sym
+import sympy.physics.mechanics as mec
+from numpy import *
+
+bp = bi.benchmark_parameters()
+
+mp = bi.benchmark_to_moore(bp)
+
+
+q1, q2, q3, q4 = mec.dynamicsymbols('q1 q2 q3 q4')
+u1, u2, u3, u4 = mec.dynamicsymbols('u1 u2 u3 u4')
+u5, u6 = mec.dynamicsymbols('u5 u6')
+T4 = mec.dynamicsymbols('T4')
 
 def pitch_from_roll_and_steer(q2, q4, rF, rR, d1, d2, d3, guess=None):
     """Returns the pitch angle from equation derived from holonomic equation.
@@ -170,7 +183,7 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
     
     inde_expression = asarray(inde_expression_ma)
     
-    inde_expression_list = [value[0].subs(u_dict) for value in inde_expression]
+    inde_expression_list = [value[0].subs(uDict) for value in inde_expression]
     
     return inde_expression, inde_expression_list
 
