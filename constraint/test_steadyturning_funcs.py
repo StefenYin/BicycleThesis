@@ -328,15 +328,13 @@ para_dict={l1: mp['l1'], l2: mp['l2'], l3: mp['l3'], l4:mp['l4'],
         ic11: mp['ic11'], ic22: mp['ic22'], ic33: mp['ic33'], ic31: mp['ic31'],
         ie11: mp['ie11'], ie22: mp['ie22'], ie33: mp['ie33'], ie31: mp['ie31']}
         
-#----------------------------
-#steady turning configuration
+#-----------------------------
+# test reference configuration
 
 #ud, u, assigned q
-u_dict = {u2: 0.0, u3: 0.0, u4: 0.0}
+u_dict = {u2: 0.0, u4: 0.0}
 
-lean = pi/8
-steer = pi/4
-
+lean = 0.0; steer = 0.0
 
 #=========================
 print ('import functions')
