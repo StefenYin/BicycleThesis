@@ -17,5 +17,3 @@ pitch = bi.pitch_from_roll_and_steer(lean, steer, mp['rf'], mp['rr'],
                                 mp['d1'], mp['d2'], mp['d3'])
 #assertation bicycle.pitch_from_roll_and_steer(lean, steer, mp['rf'], mp['rr'], 
 #                                       mp['d1'], mp['d2'], mp['d3'])
-
-
