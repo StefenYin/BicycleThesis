@@ -315,3 +315,11 @@ class bicycle_model:
     def linearized_b(self):
         """linearization of forcing matrix, obtaining  B matrix."""
         self.forcing_lin_B = self.kane.linearize()[1].subs(self.kdd)
+
+    def parameters_symbols(self, mooreParameters):
+        """Returns a dictionary of parameters whose keys are symbols, not strings
+        in mooreParameters."""
+        mp = mooreParameters
+        self.parameters = {}
+        for key, value in mp.items():
+            self.parameters.update(dict(zip([sym.symbols(key)], [value])))
