@@ -214,3 +214,122 @@ def pitch_from_roll_and_steer(q2, q4, rF, rR, d1, d2, d3, guess=None):
     q3 = newton(pitch_constraint, guess, args=args)
 
     return q3
+
+def basu_table_one_output():
+
+    basu = {}
+    basu['xdd'] = -0.5041626315047
+    basu['ydd'] = -0.3449706619454
+    basu['zdd'] = -1.4604528332980
+    basu['thetadd'] = 0.8353281706379
+    basu['psidd'] = -7.8555281128244
+    basu['phidd'] = 0.1205543897884
+    basu['psifdd'] = -4.6198904039403
+    basu['betardd'] = 1.8472554144217
+    basu['betafdd'] = 2.4548072904550
+
+    return basu
+
+def basu_table_one_input():
+
+    basu = {}
+    # coordinates
+    basu['x'] = 0.
+    basu['y'] = 0.
+    basu['z'] = 0.2440472102925
+    basu['theta'] = 0.
+    basu['psi'] = 0.9501292851472
+    basu['phi'] = 3.1257073014894
+    basu['psif'] = 0.2311385135743
+    basu['betar'] = 0.
+    basu['betaf'] = 0.
+    # speeds
+    basu['xd'] = -2.8069345714545
+    basu['yd'] = -0.1480982396001
+    basu['zd'] = 0.1058778746261
+    basu['thetad'] = 0.7830033527065
+    basu['psid'] = 0.6068425835418
+    basu['phid'] = -0.0119185528069
+    basu['psifd'] = 0.4859824687093
+    basu['betard'] = 8.9129896614890
+    basu['betafd'] = 8.0133620584155
+ 
+    return basu
+
+def basu_to_stefen_input(basu, rr, lam):
+    """Returns the coordinates and speeds of the Whipple bicycle model Stefen 
+    used as a function of the states and speeds of the Basu-Mandal2007 
+    coordinates and speeds.
+
+    Parameters
+    ----------
+    basu : dictionary
+        A dictionary containing inputs of the states and speeds of the Basu-Mandal
+        formulation. The states are represented with words corresponding to the
+        greek letter and the speeds are the words with `d` appended, e.g. `psi`
+        and `psid`.
+    rr : float
+        Rear wheel radius.
+    lam : float
+        Steer axis tilt.
+
+    Returns
+    -------
+    stefen : dictionary
+        A dictionary with the coordinates, q's, and speeds, u's in Stefen's set,
+        q1->yawangle, q2->leanangle, q3->pitchangle, q4->steerangle;
+        u1->yawrate, u2->leanrate, u3->pitchrate, u4->steerrate,
+        u5->rearwheelrate, u6->frontwheelrate.
+
+    """
+
+    stefen = {}
+
+    # coordinates
+    stefen['q1'] = -basu['theta']
+    stefen['q2'] = pi / 2. - basu['psi']
+    stefen['q3'] = pi - basu['phi'] + lam
+    stefen['q4'] = -basu['psif']
+
+    # speeds
+    stefen['u1'] = -basu['thetad']
+    stefen['u2'] = -basu['psid']
+    stefen['u3'] = -basu['phid']
+    stefen['u4'] = -basu['psifd']
+    stefen['u5'] = -basu['betard']
+    stefen['u6'] = -basu['betafd']
+
+    return stefen
+
+def basu_to_stefen_output(basu):
+    """Returns the differentiation of speeds of the Whipple bicycle model 
+    Stefen used as a function of the differentiation of the Basu-Mandal2007 speeds.
+
+    Parameters
+    ----------
+    basu : dictionary
+        A dictionary containing output of differentiation of speeds of the 
+        Basu-Mandal formulation. They consist of greek letter and the words 
+        with `dd` appended, e.g. `psidd`.
+
+    Returns
+    -------
+    stefen : dictionary
+        A dictionary with the coordinates, q's, and speeds, u's in Stefen's set,
+        q1->yawangle, q2->leanangle, q3->pitchangle, q4->steerangle;
+        u1->yawrate, u2->leanrate, u3->pitchrate, u4->steerrate,
+        u5->rearwheelrate, u6->frontwheelrate.
+
+    """
+
+    stefen = {}
+
+    # speeds
+    stefen['u1d'] = -basu['thetadd']
+    stefen['u2d'] = -basu['psidd']
+    stefen['u3d'] = -basu['phidd']
+    stefen['u4d'] = -basu['psifdd']
+    stefen['u5d'] = -basu['betardd']
+    stefen['u6d'] = -basu['betafdd']
+
+    return stefen
