@@ -83,8 +83,8 @@ class bicycle_model:
         # parameters
 
         # geometry
-        # rF: radius of front wheel
-        # rR: radius of rear wheel
+        # rf: radius of front wheel
+        # rr: radius of rear wheel
         # d1: the perpendicular distance from the steer axis to the center
         #    of the rear wheel (rear offset)
         # d2: the distance between wheels along the steer axis
@@ -150,8 +150,8 @@ class bicycle_model:
 
 
         # rear wheel center, do
-        do = dn.locatenew('do', -rR * B['3'])
-        #do = dn.locatenew('do', -rtr * A['3'] - rR * B['3']) 
+        do = dn.locatenew('do', -rr * B['3'])
+        #do = dn.locatenew('do', -rtr * A['3'] - rr * B['3']) 
         #rear wheel center with rear tire radius rtr
 
         do.v2pt_theory(dn, N, D)
@@ -182,8 +182,8 @@ class bicycle_model:
 
 
         #front wheel center
-        fo = fn.locatenew('fo', -rF * g_3)
-        #fo = fn.locatenew('fo', -ftr * A['3'] - rF * g_3) 
+        fo = fn.locatenew('fo', -rf * g_3)
+        #fo = fn.locatenew('fo', -ftr * A['3'] - rf * g_3) 
         # rear wheel center with rear tire radius rtr.
 
         fo.v2pt_theory(fn, N, F)
