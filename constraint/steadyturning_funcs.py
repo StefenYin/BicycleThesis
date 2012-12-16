@@ -41,6 +41,25 @@ def configuration(lean, steer, mooreParameters):
     
     return q_dict, q_dict_d
 
+def speeds_zeros(dynamicSymbolsSpeeds):
+    """Returns the zeros of speeds in steady turning, lean rate, pitch rate,
+    and steer rate.
+
+    Parameter
+    ---------
+    dynamicSymbolsSpeeds: list
+        A list of dynamic symbols of speeds in order, leanrate, pitchrate, steerrate.
+
+    Return
+    ------
+    u_zeros_dict : dictionary
+        Zeros of lean, pitch and steer rates in order.
+    """
+    lean_rate = 0.0; pitch_rate = 0.0; steer_rate = 0.0
+    u_zeros_dict = dict(zip(dynamicSymbolsSpeeds,[lean_rate, pitch_rate, steer_rate]))
+
+    return u_zeros_dict
+
 def forcing_dynamic_equations(forcingEquations, parameters, qDict, uDict):
     """Returns the focing dynamic equations in specific configuration.
     Note
