@@ -1,72 +1,25 @@
-#========================
-#print ('built functions')
-from dtk import bicycle as bi
-from scipy.optimize import newton
+import bicycle as bi
 import sympy as sym
 import sympy.physics.mechanics as mec
 from numpy import *
 
-bp = bi.benchmark_parameters()
-
-mp = bi.benchmark_to_moore(bp)
-
-
-q1, q2, q3, q4 = mec.dynamicsymbols('q1 q2 q3 q4')
-u1, u2, u3, u4 = mec.dynamicsymbols('u1 u2 u3 u4')
-u5, u6 = mec.dynamicsymbols('u5 u6')
+q2, q3, q4 = mec.dynamicsymbols('q2 q3 q4')
+u1, u2, u3, u4, u5, u6= mec.dynamicsymbols('u1 u2 u3 u4 u5 u6')
 T4 = mec.dynamicsymbols('T4')
 
-def pitch_from_roll_and_steer(q2, q4, rF, rR, d1, d2, d3, guess=None):
-    """Returns the pitch angle from equation derived from holonomic equation.
+def configuration(lean, steer, mooreParameters):
+    """Returns the configuration of steady turning in lean, steer and pitch 
+    angle in radians and degrees by giving front twos values and bicycle
+    parameters in Jason's set.
+
     Parameter
     ---------
-    q2: float
-        Lean angle.
-    q4: float
-        Steer angle.
-    rF: float
-        Front wheel radius.
-    rR: float
-        Rear wheel radius.
-    d1 : float
-        The distance from the rear wheel center to the steer axis.
-    d2 : float
-        The distance between the front and rear wheel centers along the steer
-        axis.
-    d3 : float
-        The distance from the front wheel center to the steer axis.
-
-    Return
-    ------
-    q3: float
-        Pitch angle.
-    """
-
-    def pitch_constraint(q3, q2, q4, rF, rR, d1, d2, d3):
-        zero = -d1*sin(q3)*cos(q2) - rR*cos(q2) + \
-        (d2 + rF*cos(q2)*cos(q3)/sqrt((sin(q2)*sin(q4) - 
-        sin(q3)*cos(q2)*cos(q4))**2 + 
-        cos(q2)**2*cos(q3)**2))*cos(q2)*cos(q3) + \
-        (d3 + rF*(sin(q2)*sin(q4) - sin(q3)*cos(q2)*
-        cos(q4))/sqrt((sin(q2)*sin(q4) - 
-        sin(q3)*cos(q2)*cos(q4))**2 + cos(q2)**2*
-        cos(q3)**2))*(sin(q2)*sin(q4) - sin(q3)*cos(q2)*cos(q4))
-        
-        return zero
-
-    if guess is None:
-        # guess based on steer and roll being both zero
-        guess = bi.lambda_from_abc(rF, rR, d1, d3, d2)
-
-    args = (q2, q4, rF, rR, d1, d2, d3)
-
-    q3 = newton(pitch_constraint, guess, args=args)
-
-    return q3
-
-def configuration(lean, steer):
-    """Returns the configuration of steady turning in lean, steer
-    and pitch angle in radians and degrees by giving front twos values.
+    lean: float
+        A given lean angle.
+    steer: float
+        A given steer angle.
+    mooreParameters: dictionary
+        Bicycle parameters in Moore's set, but keys are string.
 
     Return
     ------
@@ -75,6 +28,8 @@ def configuration(lean, steer):
     q_dict_d: dictionary
         The degrees units of q_dict.
     """
+    mp = mooreParameters
+
     pitch = bi.pitch_from_roll_and_steer(lean, steer, mp['rf'], mp['rr'], 
             mp['d1'], mp['d2'], mp['d3'])
     
@@ -94,14 +49,14 @@ def forcing_dynamic_equations(forcingEquations, parameters, qDict, uDict):
 
     Parameter
     ---------
-    forcingEquatioins: dictionary
-        Forcing matrix eqautions.
-    Parameters: dictionary
-        Bicycle parameters.
+    forcingEquatioins: list
+        Forcing matrix equations derived from Kane' Method with Sympy.
+    parameters: dictionary
+        Bicycle parameters in Moore' set, but keys are symbols in forcingEquations.
     qDict: dictionary
         Configuration of steady turning: lean, steer and pitch angles.
     uDict: dictionary
-        zeros u's: lean rate, pitch rate, steer rate.
+        zeros u's of steady turning: lean rate, pitch rate, steer rate.
 
     Return
     ------
@@ -148,16 +103,13 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
     ---------
     nonholonomic: array-like
         A list of nonholonomic constraint equations.
-    uDict: dictionary
-        A dictionary consists of zeros u values for steady turning, 
-        leanrate(u2), pitchrate(u3), and steerrate(u4).
 
     Return
     ------
     inde_expression: array, 3-by-1
         A list of expressions associated with all independent generalized speeds.
         The expressions correspond to all dependent speeds.
-    inde_expression_subs: array, 1-by-3
+    inde_expression_list: a list
         Substituding the uDict into the inde_expression.
     """
     #independent generalized speeds
