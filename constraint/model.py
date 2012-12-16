@@ -99,7 +99,7 @@ class bicycle_model:
         # l4: the distance in the e3> direction from the front wheel center to
         #    the center of mass of the fork
 
-        rF, rR = sym.symbols('rF rR')
+        rf, rr = sym.symbols('rf rr')
         d1, d2, d3 = sym.symbols('d1 d2 d3')
         l1, l2, l3, l4 = sym.symbols('l1 l2 l3 l4')
 
