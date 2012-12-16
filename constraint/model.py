@@ -317,9 +317,23 @@ class bicycle_model:
         self.forcing_lin_B = self.kane.linearize()[1].subs(self.kdd)
 
     def parameters_symbols(self, mooreParameters):
-        """Returns a dictionary of parameters whose keys are symbols, not strings
-        in mooreParameters."""
+        """Returns a dictionary of parameters whose keys are symbols instead of
+        strings in mooreParameters."""
         mp = mooreParameters
         self.parameters = {}
         for key, value in mp.items():
             self.parameters.update(dict(zip([sym.symbols(key)], [value])))
+
+    def coordinates_dynamicsymbols(self, coordinates):
+        """Returns a dictionary of coordinates whose keys are dynamic symbols 
+        instead of strings of coordinates."""
+        self.coordinates = {}
+        for key, value in coordinates.items():
+            self.coordinates.update(dict(zip([mec.dynamicsymbols(key)], [value])))
+
+    def speeds_dynamicsymbols(self, speeds):
+        """Returns a dictionary of speeds whose keys are dynamic symbols 
+        instead of strings of speeds."""
+        self.speeds = {}
+        for key, value in speeds.items():
+            self.speeds.update(dict(zip([mec.dynamicsymbols(key)], [value])))
