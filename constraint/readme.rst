@@ -1,10 +1,11 @@
-Bicycle Thesis:
-===============
+==============
+Bicycle Thesis
+==============
 
 **This is for contact forces of constraint bicycle model in steady turning.**
 
 Modules
--------
+=======
 
 model.py
 ---------
