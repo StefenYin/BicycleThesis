@@ -3,7 +3,7 @@
 ##########################
 
 import bicycle as bi
-import steadyturning_funcs as sTurning
+import steadyturning as sTurning
 import model as mo
 import sympy.physics.mechanics as mec
 
