@@ -93,3 +93,8 @@ Amat = mass_full_lin.inv() * forcing_lin_A
 #Bmat = mass_full_lin.inv() * forcing_lin_B
 
 Am = Amat.extract([1,2,4,5],[1,2,3,4])
+
+#assertation: 
+#import dtk.bicycle as bicycle
+#M, C1, K0, K2 = bicycle.benchmark_par_to_canonical(bp)
+#bicycle.benchmark_state_space(M, C1, K0, K2, v, bp['g']) #define v before running
