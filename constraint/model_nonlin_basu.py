@@ -310,7 +310,7 @@ print('Ready for M matrix and forcing matrix')
 MM_full = kane.mass_matrix_full.subs(kdd).subs(para_dict).subs(in_dict)
 F_full = kane.forcing_full.subs(kdd).subs(para_dict).subs(in_dict)
 
-
+"""
 right_side = MM_full.inv()*F_full
 
 ######################
@@ -345,3 +345,4 @@ except IOError:
 
 for i in range(size(q_u_dot)):
     f.write(str(q_u_dot[i]) + '=' + str(right_side[i]) + '\n\n')
+"""
