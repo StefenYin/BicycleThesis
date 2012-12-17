@@ -280,6 +280,7 @@ class bicycle_model:
 
         forceList = [Fco, Fdo, Feo, Ffo, F_r, F_f, Tc, Te]
 
+        self.inputForces = [T4]
 
         #===================================    
         # Kinematical Differential Equations
