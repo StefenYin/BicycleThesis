@@ -65,6 +65,7 @@ class bicycle_model:
         #front wheel
         ua4, ua5 = mec.dynamicsymbols ('ua4 ua5')
 
+        self.auxiliarySpeeds = [ua1, ua2, ua4, ua5]
 
         #================================
         # Orientation of Reference Frames
@@ -300,21 +301,21 @@ class bicycle_model:
 
 
     def mass_matrix_full(self):
-        self.MM_full = self.kane.mass_matrix_full.subs(self.kdd)
+        self.mmFull = self.kane.mass_matrix_full.subs(self.kdd)
 
 
     def forcing_full(self):
-        self.F_full = self.kane.forcing_full.subs(self.kdd)
+        self.forceFull = self.kane.forcing_full.subs(self.kdd)
 
 
     def linearized_a(self):
         """linearization of focing matrix, obtaining A matrix."""
-        self.forcing_lin_A = self.kane.linearize()[0].subs(self.kdd)
+        self.forcingLinA = self.kane.linearize()[0].subs(self.kdd)
 
 
     def linearized_b(self):
         """linearization of forcing matrix, obtaining  B matrix."""
-        self.forcing_lin_B = self.kane.linearize()[1].subs(self.kdd)
+        self.forcingLinB = self.kane.linearize()[1].subs(self.kdd)
 
     def parameters_symbols(self, mooreParameters):
         """Returns a dictionary of parameters whose keys are symbols instead of
@@ -337,3 +338,9 @@ class bicycle_model:
         self.speeds = {}
         for key, value in speeds.items():
             self.speeds.update(dict(zip([mec.dynamicsymbols(key)], [value])))
+
+    def auxiliary_speeds_zero(self):
+        """Returns a dictionary of zero auxiliary speeds."""
+        self.auxiliarySpeedsZeros = dict(zip(self.auxiliarySpeeds, 
+                                            zeros(len(self.auxiliarySpeeds))))
+    
