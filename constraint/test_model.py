@@ -5,7 +5,6 @@
 
 import bicycle as bi
 import model as mo
-import sympy.physics.mechanics as mec
 import pdb
 
 #======================
@@ -37,12 +36,11 @@ biModel.auxiliary_speeds_zero()
 ua_dict = biModel.auxiliarySpeedsZeros
 
 
-
 #==================================
 print ('basu for nonlinear model')
 
-#steer torque
-T4 = mec.dynamicsymbols('T4')
+#input forces or torques
+T4 = biModel.inputForces[0]
 steerTorque = {T4: 0.0}
 
 #derivative of zero
