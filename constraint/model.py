@@ -1,6 +1,7 @@
 import sympy as sym
 from numpy import *
 import sympy.physics.mechanics as mec
+import pdb
 
 import os
 
@@ -56,6 +57,10 @@ class bicycle_model:
         u1d, u2d, u3d, u4d = mec.dynamicsymbols('u1 u2 u3 u4', 1)
         u5d, u6d = mec.dynamicsymbols('u5 u6', 1)
 
+        self.coordinatesInde = [q1, q2, q4]
+        self.coordinatesDe = [q3]
+        self.speedsInde = [u2, u4, u5]
+        self.speedsDe = [u1, u3, u6]
 
         #==================================
         # Axiliary speeds at contact points
@@ -286,11 +291,11 @@ class bicycle_model:
         #=======================
         print ('Kanes Method')
 
-        self.kane = mec.KanesMethod(N, q_ind=[q1, q2, q4], u_ind=[u2, u4, u5], 
-            kd_eqs=kinematical, q_dependent=[q3], 
+        self.kane = mec.KanesMethod(N, q_ind=self.coordinatesInde, u_ind=self.speedsInde, 
+            kd_eqs=kinematical, q_dependent=self.coordinatesDe, 
             configuration_constraints=self.holonomic, 
-            u_dependent=[u1, u3, u6], velocity_constraints=self.nonholonomic, 
-            u_auxiliary=[ua1, ua2, ua4, ua5])
+            u_dependent=self.speedsDe, velocity_constraints=self.nonholonomic, 
+            u_auxiliary=self.auxiliarySpeeds)
             
         #reminder: u1--yaw rate, u2--roll rate, u3--pitch rate, u4--steer rate, 
         #u5--rear wheel ang. vel., u6--front wheel ang. vel.
@@ -343,4 +348,16 @@ class bicycle_model:
         """Returns a dictionary of zero auxiliary speeds."""
         self.auxiliarySpeedsZeros = dict(zip(self.auxiliarySpeeds, 
                                             zeros(len(self.auxiliarySpeeds))))
-    
+
+    def linearized_reference_configuration(self, lam, rR, rF):
+        """Returns the linearized model at the reference configuration."""
+        v = sym.Symbol('v')
+
+        q1, q2, q4 = self.coordinatesInde
+        q3 = self.coordinatesDe[0]
+        u2, u4, u5 = self.speedsInde
+        u1, u3, u6 = self.speedsDe
+
+        self.referenceConfiguration = {q1: 0., q2: 0., q3:lam, q4:0., u1:0., 
+        u2:0., u3:0., u4:0., u5: -v/rR, u6: -v/rF}
+
