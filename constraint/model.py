@@ -61,6 +61,7 @@ class bicycle_model:
         self.coordinatesDe = [q3]
         self.speedsInde = [u2, u4, u5]
         self.speedsDe = [u1, u3, u6]
+        self.speedsDerivative = [u1d, u2d, u3d, u4d, u5d, u6d]
 
         #==================================
         # Axiliary speeds at contact points
