@@ -47,7 +47,7 @@ print q_dict,
 print q_dict_d, '\n'
 
 #dynamic equations
-dynamic_equ = sTurning.forcing_dynamic_equations(biModel.F_full, para_dict, q_dict, u_dict)
+dynamic_equ = sTurning.forcing_dynamic_equations(biModel.forceFull, para_dict, q_dict, u_dict)
 print dynamic_equ, '\n'
 
 #nonholonomic equations
