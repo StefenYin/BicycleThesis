@@ -36,6 +36,8 @@ biModel.auxiliary_speeds_zero()
 
 ua_dict = biModel.auxiliarySpeedsZeros
 
+
+
 #==================================
 print ('basu for nonlinear model')
 
@@ -63,7 +65,31 @@ biModel.speeds_dynamicsymbols(stefen_output) #actually, stefen_output includes
 output_dict = biModel.speeds
 
 #for calculation of output
-mass_full = biModel.mmFull.subs(ua_dict).subs(steerTorque).subs(para_dict).subs(input_states_dict).subs(deri)
-force_full = biModel.forceFull.subs(ua_dict).subs(steerTorque).subs(para_dict).subs(input_states_dict).subs(deri)
+mass_full_nonlin = biModel.mmFull.subs(ua_dict).subs(steerTorque).subs(para_dict).subs(input_states_dict).subs(deri)
+force_full_nonlin = biModel.forceFull.subs(ua_dict).subs(steerTorque).subs(para_dict).subs(input_states_dict).subs(deri)
 
-output_cal = mass_full.inv()*force_full
+output_cal = mass_full_nonlin.inv()*force_full_nonlin
+
+
+
+#==========================
+print ('linearized model')
+
+#configuration
+biModel.linearized_reference_configuration(bp['lambda'], mp['rr'], mp['rf'])
+
+linearized_confi = biModel.referenceConfiguration
+
+#linearization
+mass_full_lin = biModel.mmFull.subs(para_dict).subs(linearized_confi).evalf()
+
+biModel.linearized_a()
+#biModel.linearized_b()
+
+forcing_lin_A = biModel.forcingLinA.subs(ua_dict).subs(para_dict).subs(linearized_confi).evalf()
+#forcing_lin_B = biModel.forcingLinB.subs(ua_dict).subs(para_dict).subs(linearized_confi).evalf()
+
+Amat = mass_full_lin.inv() * forcing_lin_A
+#Bmat = mass_full_lin.inv() * forcing_lin_B
+
+Am = Amat.extract([1,2,4,5],[1,2,3,4])
