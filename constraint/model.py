@@ -361,3 +361,7 @@ class bicycle_model:
         self.referenceConfiguration = {q1: 0., q2: 0., q3:lam, q4:0., u1:0., 
         u2:0., u3:0., u4:0., u5: -v/rR, u6: -v/rF}
 
+    def contact_forces(self):
+        """Returns contact forces on each wheel."""
+        self.conForceNoncontri = self.kane.auxiliary_eqs.applyfunc(
+                            lambda w: factor_terms(signsimp(w))).subs(self.kdd)
