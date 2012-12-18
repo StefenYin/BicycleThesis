@@ -1,11 +1,14 @@
 import bicycle as bi
 import sympy as sym
 import sympy.physics.mechanics as mec
+
 from numpy import *
+
 
 q2, q3, q4 = mec.dynamicsymbols('q2 q3 q4')
 u1, u2, u3, u4, u5, u6= mec.dynamicsymbols('u1 u2 u3 u4 u5 u6')
 T4 = mec.dynamicsymbols('T4')
+
 
 def configuration(lean, steer, mooreParameters):
     """Returns the configuration of steady turning in lean, steer and pitch 
@@ -27,19 +30,21 @@ def configuration(lean, steer, mooreParameters):
         The dictionary of steady turning configuration.
     q_dict_d: dictionary
         The degrees units of q_dict.
+
     """
+
     mp = mooreParameters
 
     pitch = bi.pitch_from_roll_and_steer(lean, steer, mp['rf'], mp['rr'], 
             mp['d1'], mp['d2'], mp['d3'])
-    
-    q_dict = {q2: lean, q3:pitch, q4:steer}
-    
+
     lean_d, pitch_d, steer_d = [value*180/pi for value in [lean, pitch, steer]]
-    
+
+    q_dict = {q2: lean, q3:pitch, q4:steer}
     q_dict_d = {q2: lean_d, q3: pitch_d, q4: steer_d}
     
     return q_dict, q_dict_d
+
 
 def speeds_zeros(dynamicSymbolsSpeeds):
     """Returns the zeros of speeds, e.g. lean rate, pitch rate, and steer rate 
@@ -54,14 +59,17 @@ def speeds_zeros(dynamicSymbolsSpeeds):
     ------
     u_zeros_dict : dictionary
         Zero speeds.
+
     """
 
     u_zeros_dict = dict(zip(dynamicSymbolsSpeeds,zeros(len(dynamicSymbolsSpeeds))))
 
     return u_zeros_dict
 
+
 def forcing_dynamic_equations(forcingEquations, parameters, qDict, uDict):
     """Returns the focing dynamic equations in specific configuration.
+
     Note
     ----
     There are no u_dots here.
@@ -82,12 +90,15 @@ def forcing_dynamic_equations(forcingEquations, parameters, qDict, uDict):
     dynamicEquations: dictionary
         Dynamic equations with yaw rate, rear wheel rate, front wheel rate, and 
         steer torque.
+
     """
+
     F_full = forcingEquations.subs(uDict).subs(qDict).subs(parameters).expand()
     
     dynamicEquations = F_full[4:7]
     
     return dynamicEquations
+
 
 def dynamic_equations_coefficients(dynamicEquations):
     """Returns the coeffcients in the following form:
@@ -102,6 +113,7 @@ def dynamic_equations_coefficients(dynamicEquations):
     ------
     coefficients: dictionary
         a, b, c, d, e in a row for each dynamic equation.
+
     """
 
     num_dict = {u1: 0.0, u5: 0.0, u6: 0.0, T4: 0.0}
@@ -113,6 +125,7 @@ def dynamic_equations_coefficients(dynamicEquations):
                      value.subs(num_dict)] for value in dynamic_equ]
     
     return coefficients
+
 
 def de_by_inde(nonholonomic, qDict, parameters, uDict):
     """Returns the dependent generalized speeds (u1, u3, u6) expressed by 
@@ -130,7 +143,9 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
         The expressions correspond to all dependent speeds.
     inde_expression_list: a list
         Substituding the uDict into the inde_expression.
+
     """
+
     #independent generalized speeds
     nonho_coeff_inde_sym = [[value.expand().coeff(u2), value.expand().coeff(u4), 
                              value.expand().coeff(u5)] for value in nonholonomic]
@@ -151,16 +166,17 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
     nonho_coeff_de_ma = asmatrix(nonho_coeff_de_value)
 
     inde_expression_ma = (nonho_coeff_de_ma.I) * (- nonho_coeff_inde_ma * inde_states)
-    
     inde_expression = asarray(inde_expression_ma)
     
     inde_expression_list = [value[0].subs(uDict) for value in inde_expression]
     
     return inde_expression, inde_expression_list
 
+
 def dynamic_nonholonomic_equations(indeExpression_list, dynamicEquations):
     """Return the final equations after substitude independent expressions 
     into the dynamic equations.
+
     Note
     ----
     The equations of indeExpression and dynamicEquations are already plugged 
@@ -170,7 +186,9 @@ def dynamic_nonholonomic_equations(indeExpression_list, dynamicEquations):
     ------
     dynamic_nonho_equ: array-like
         Dynamic equations after substituding uDict and indeExpression.
+
     """
+
     inde_dict = dict(zip([u1, u3, u6], indeExpression_list))
     
     dynamic_nonho_equ = [value.subs(inde_dict).expand() for value in dynamicEquations]
