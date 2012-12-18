@@ -5,14 +5,18 @@
 import bicycle as bi
 import steadyturning as sTurning
 import model as mo
+
 import sympy.physics.mechanics as mec
+
 
 #======================
 print ('bicycle model')
-#call Class bicycle_model
-biModel = mo.bicycle_model()
+
+#call Class BicycleModel
+biModel = mo.BicycleModel()
 
 biModel.forcing_full() #for F_full
+
 
 #======================================
 print ('parameters and states values')
@@ -20,11 +24,9 @@ print ('parameters and states values')
 #----------
 #parameters
 bp = bi.benchmark_parameters()
-
 mp = bi.benchmark_to_moore(bp)
 
 biModel.parameters_symbols(mp)
-
 para_dict = biModel.parameters
 
 #-----------------------------
@@ -47,7 +49,8 @@ print q_dict,
 print q_dict_d, '\n'
 
 #dynamic equations
-dynamic_equ = sTurning.forcing_dynamic_equations(biModel.forceFull, para_dict, q_dict, u_dict)
+dynamic_equ = sTurning.forcing_dynamic_equations(biModel.forceFull, 
+                                                para_dict, q_dict, u_dict)
 print dynamic_equ, '\n'
 
 #nonholonomic equations
