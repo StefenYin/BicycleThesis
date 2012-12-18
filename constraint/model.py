@@ -1,18 +1,25 @@
-import sympy as sym
-from numpy import *
-import sympy.physics.mechanics as mec
-import pdb
-
 import os
 
-from sympy import signsimp, factor_terms
+import pdb
+
+import sympy as sym
+import sympy.physics.mechanics as mec
+
+from numpy import *
+
+from sympy import (signsimp, factor_terms)
 
 mec.Vector.simp = False
 mec.mechanics_printing()
 
 
-class bicycle_model:
+
+class BicycleModel(object):
+    """Create a whipple model with auxiliary speeds on the contact points."""
+
+
     def __init__(self):
+
 
         #=================
         # Reference Frames
@@ -63,6 +70,7 @@ class bicycle_model:
         self.speedsDe = [u1, u3, u6]
         self.speedsDerivative = [u1d, u2d, u3d, u4d, u5d, u6d]
 
+
         #==================================
         # Axiliary speeds at contact points
 
@@ -72,6 +80,7 @@ class bicycle_model:
         ua4, ua5 = mec.dynamicsymbols ('ua4 ua5')
 
         self.auxiliarySpeeds = [ua1, ua2, ua4, ua5]
+
 
         #================================
         # Orientation of Reference Frames
@@ -106,17 +115,23 @@ class bicycle_model:
         # l4: the distance in the e3> direction from the front wheel center to
         #    the center of mass of the fork
 
+        # mass
+        # mc, md, me, mf: mass of rearframe, rearwheel, frontframe, frontwheel
+
+        # inertia
+        # ic11, ic22, ic33, ic31: rear frame
+        # id11, id22: rear wheel
+        # ie11, ie22, ie33, ie31: front frame
+        # if11, if22: front wheel
+
         rf, rr = sym.symbols('rf rr')
         d1, d2, d3 = sym.symbols('d1 d2 d3')
         l1, l2, l3, l4 = sym.symbols('l1 l2 l3 l4')
 
-        # acceleration due to gravity
         g = sym.symbols('g')
 
-        # mass
         mc, md, me, mf = sym.symbols('mc md me mf')
 
-        # inertia
         ic11, ic22, ic33, ic31 = sym.symbols('ic11 ic22 ic33 ic31') #rear frame
         id11, id22 = sym.symbols('id11 id22')  #rear wheel
         ie11, ie22, ie33, ie31 = sym.symbols('ie11 ie22 ie33 ie31')  #front frame
@@ -130,19 +145,20 @@ class bicycle_model:
         B.set_ang_vel(A, u2 * A['1'])
         C.set_ang_vel(B, u3 * B['2'])
         E.set_ang_vel(C, u4 * C['3'])
-
         D.set_ang_vel(C, u5 * C['2'])
         F.set_ang_vel(E, u6 * E['2'])
+
 
         #=====================
         # special unit vectors
 
-        #pitch back for the unit vector g_3 along front wheel radius;
+        # g_3: direction along front wheel radius.
+        # long_v: longitudinal direction of front wheel.
+        # lateral_v: lateral direction of front wheel.
+
         g_3 =  (mec.express(A['3'], E) - mec.dot(E['2'], A['3'])*E['2']).normalize() 
         #another way: g_3 = E['2'].cross(A['3']).cross(E['2']).normalize() 
 
-
-        #roll back for longitudinal and lateral unit vector of front wheel
         long_v = mec.cross (E['2'], A['3']).normalize()
         lateral_v = mec.cross (A['3'], long_v).normalize() 
 
@@ -150,62 +166,60 @@ class bicycle_model:
         #======================
         # points and velocities
 
-        #rear wheel contact point, dn
-        dn = mec.Point('dn')
-        dn.set_vel(N, ua1 * A['1'] + ua2 * A['2']) 
-        #dn.set_vel(N, ua1 * N['1'] + ua2 * N['2'])
+        # dn: rear wheel contact point.
+        # do: rear wheel center.
+        # rtr: rear tire radius.
+        # fn: front wheel contact point.
+        # fo: front wheel center.
+        # ftr: front tire radius
 
+        # co: rear frame center.
+        # eo: front frame center.
 
-        # rear wheel center, do
-        do = dn.locatenew('do', -rr * B['3'])
-        #do = dn.locatenew('do', -rtr * A['3'] - rr * B['3']) 
-        #rear wheel center with rear tire radius rtr
+        # ce: steer axis point.
+        # SAF: steer axis foot.
 
-        do.v2pt_theory(dn, N, D)
 
         t = sym.symbols('t')
+
+        # rear
+        dn = mec.Point('dn')
+        dn.set_vel(N, ua1 * A['1'] + ua2 * A['2']) 
+        # dn.set_vel(N, ua1 * N['1'] + ua2 * N['2'])
+        do = dn.locatenew('do', -rr * B['3'])
+        # do = dn.locatenew('do', -rtr * A['3'] - rr * B['3']) 
+
+        do.v2pt_theory(dn, N, D)
         do.set_acc(N, do.vel(N).diff(t, B) + mec.cross(B.ang_vel_in(N), do.vel(N))) 
 
-
-        # rear frame center
         co = mec.Point('co')
         co.set_pos(do, l1 * C['1'] + l2 * C['3'])
 
         co.v2pt_theory(do, N, C)
         co.a2pt_theory(do, N, C)
 
-        # steer axis point
         ce = mec.Point('ce')
         ce.set_pos(do, d1 * C['1'])
 
         ce.v2pt_theory(do, N, C)
         ce.a2pt_theory(do, N, C)
 
-
-        #Front wheel contact point, fn
+        # Front
         fn = mec.Point('fn')
         fn.set_vel(N, ua4 * long_v + ua5 * lateral_v)
-        #fn.set_vel(N, ua4 * N['1'] + ua5 * N['2'])
-
-
-        #front wheel center
+        # fn.set_vel(N, ua4 * N['1'] + ua5 * N['2'])
         fo = fn.locatenew('fo', -rf * g_3)
         #fo = fn.locatenew('fo', -ftr * A['3'] - rf * g_3) 
-        # rear wheel center with rear tire radius rtr.
 
         fo.v2pt_theory(fn, N, F)
-
         fo.set_acc(N, fo.vel(N).diff(t, E) + mec.cross(E.ang_vel_in(N), fo.vel(N)))
 
-
-        # front frame center
         eo = mec.Point('eo')
         eo.set_pos(fo, l3 * E['1'] + l4 * E['3'])
 
         eo.v2pt_theory(fo, N, E)
         eo.a2pt_theory(fo, N, E)
 
-        #steer axis foot; one from rear wheel center, the other from front wheel center
         SAF = do.locatenew('SAF', d1 * C['1'] + d2 * E['3'])
         SAF.set_pos(fo, -d3 * E['1'])
 
@@ -215,11 +229,11 @@ class bicycle_model:
         v_SAF_1 = do.vel(N) + mec.cross(C.ang_vel_in(N), SAF.pos_from(do))
         v_SAF_2 = fo.vel(N) + mec.cross(E.ang_vel_in(N), SAF.pos_from(fo))
 
+
         #=============================
         # Holo and nonholo Constraints
 
         self.holonomic = [fn.pos_from(dn).dot(A['3'])]
-
         self.nonholonomic = [(v_SAF_1-v_SAF_2).dot(uv) for uv in E]
 
 
@@ -228,9 +242,9 @@ class bicycle_model:
 
         #Inertia
         Ic = mec.inertia(C, ic11, ic22, ic33, 0.0, 0.0, ic31)
-        Id = mec.inertia(C, id11, id22, id11, 0.0, 0.0, 0.0) #rear wheel
+        Id = mec.inertia(C, id11, id22, id11, 0.0, 0.0, 0.0)
         Ie = mec.inertia(E, ie11, ie22, ie33, 0.0, 0.0, ie31)
-        If = mec.inertia(E, if11, if22, if11, 0.0, 0.0, 0.0) #front wheel
+        If = mec.inertia(E, if11, if22, if11, 0.0, 0.0, 0.0)
 
         #bodies
         rearFrame_inertia = (Ic, co)
@@ -248,40 +262,35 @@ class bicycle_model:
         bodyList = [rearFrame, rearWheel, frontFrame, frontWheel]
 
 
-
         #==========================
         # Generalized Active Forces
 
-        # steer torque
-        T4 = mec.dynamicsymbols('T4')
+        # T4: steer torque.
+        # Fx_r, Fy_r: rear wheel contact forces.
+        # Fx_f, Fy_f: front wheel contact forces.
+        # Fco, Fdo, Feo, Ffo: gravity of four rigid bodies of bicycle.
 
-        #road_wheel contact forces
+        T4 = mec.dynamicsymbols('T4')
         Fx_r, Fy_r, Fx_f, Fy_f = mec.dynamicsymbols('Fx_r Fy_r Fx_f Fy_f')
 
+        Tc = (C, - T4 * C['3']) #back steer torque to rear frame
+        Te = (E, T4 * C['3']) #steer torque to front frame
 
-        # gravity
+        F_r = (dn, Fx_r * A['1'] + Fy_r * A['2'])
+        F_f = (fn, Fx_f * long_v + Fy_f * lateral_v)
+        #F_r = (dn, Fx_r * N['1'] + Fy_r * N['2'])
+        #F_f = (fn, Fx_f * N['1'] + Fy_f * N['2'])
+
         Fco = (co, mc * g * A['3'])
         Fdo = (do, md * g * A['3'])
         Feo = (eo, me * g * A['3'])
         Ffo = (fo, mf * g * A['3'])
 
-        #road_wheel contact forces
-        F_r = (dn, Fx_r * A['1'] + Fy_r * A['2'])
-        F_f = (fn, Fx_f * long_v + Fy_f * lateral_v)
-
-        #F_r = (dn, Fx_r * N['1'] + Fy_r * N['2'])
-        #F_f = (fn, Fx_f * N['1'] + Fy_f * N['2'])
-
-        # input torques
-        Tc = (C, - T4 * C['3']) #back steer torque to rear frame
-
-        Te = (E, T4 * C['3']) #steer torque to front frame
-
-
         forceList = [Fco, Fdo, Feo, Ffo, F_r, F_f, Tc, Te]
 
         self.inputForces = [T4]
         self.auxiliaryForces = [Fx_r, Fy_r, Fx_f, Fy_f]
+
 
         #===================================    
         # Kinematical Differential Equations
@@ -291,17 +300,16 @@ class bicycle_model:
                        q3d - u3,
                        q4d - u4]
 
+
         #=======================
         print ('Kanes Method')
 
-        self.kane = mec.KanesMethod(N, q_ind=self.coordinatesInde, u_ind=self.speedsInde, 
-            kd_eqs=kinematical, q_dependent=self.coordinatesDe, 
-            configuration_constraints=self.holonomic, 
+        self.kane = mec.KanesMethod(
+            N, q_ind=self.coordinatesInde, u_ind=self.speedsInde, kd_eqs=kinematical, 
+            q_dependent=self.coordinatesDe, configuration_constraints=self.holonomic, 
             u_dependent=self.speedsDe, velocity_constraints=self.nonholonomic, 
-            u_auxiliary=self.auxiliarySpeeds)
-            
-        #reminder: u1--yaw rate, u2--roll rate, u3--pitch rate, u4--steer rate, 
-        #u5--rear wheel ang. vel., u6--front wheel ang. vel.
+            u_auxiliary=self.auxiliarySpeeds
+            )
 
         (fr, frstar)= self.kane.kanes_equations(forceList, bodyList)
 
@@ -309,51 +317,68 @@ class bicycle_model:
 
 
     def mass_matrix_full(self):
+        """Returns mass matrix."""
         self.mmFull = self.kane.mass_matrix_full.subs(self.kdd)
 
 
     def forcing_full(self):
+        """Returns forcing matrix."""
         self.forceFull = self.kane.forcing_full.subs(self.kdd)
 
 
     def linearized_a(self):
         """linearization of focing matrix, obtaining A matrix."""
+
         self.forcingLinA = self.kane.linearize()[0].subs(self.kdd)
 
 
     def linearized_b(self):
         """linearization of forcing matrix, obtaining  B matrix."""
+
         self.forcingLinB = self.kane.linearize()[1].subs(self.kdd)
+
 
     def parameters_symbols(self, mooreParameters):
         """Returns a dictionary of parameters whose keys are symbols instead of
         strings in mooreParameters."""
+
         mp = mooreParameters
         self.parameters = {}
+
         for key, value in mp.items():
             self.parameters.update(dict(zip([sym.symbols(key)], [value])))
+
 
     def coordinates_dynamicsymbols(self, coordinates):
         """Returns a dictionary of coordinates whose keys are dynamic symbols 
         instead of strings of coordinates."""
+
         self.coordinates = {}
+
         for key, value in coordinates.items():
             self.coordinates.update(dict(zip([mec.dynamicsymbols(key)], [value])))
+
 
     def speeds_dynamicsymbols(self, speeds):
         """Returns a dictionary of speeds whose keys are dynamic symbols 
         instead of strings of speeds."""
+
         self.speeds = {}
+
         for key, value in speeds.items():
             self.speeds.update(dict(zip([mec.dynamicsymbols(key)], [value])))
 
+
     def auxiliary_speeds_zero(self):
         """Returns a dictionary of zero auxiliary speeds."""
+
         self.auxiliarySpeedsZeros = dict(zip(self.auxiliarySpeeds, 
                                             zeros(len(self.auxiliarySpeeds))))
 
+
     def linearized_reference_configuration(self, lam, rR, rF):
         """Returns the linearized model at the reference configuration."""
+
         v = sym.Symbol('v')
 
         q1, q2, q4 = self.coordinatesInde
@@ -364,7 +389,10 @@ class bicycle_model:
         self.referenceConfiguration = {q1: 0., q2: 0., q3:lam, q4:0., u1:0., 
         u2:0., u3:0., u4:0., u5: -v/rR, u6: -v/rF}
 
+
     def contact_forces(self):
         """Returns contact forces on each wheel."""
+
         self.conForceNoncontri = self.kane.auxiliary_eqs.applyfunc(
                             lambda w: factor_terms(signsimp(w))).subs(self.kdd)
+
