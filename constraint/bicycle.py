@@ -1,9 +1,10 @@
-from numpy import pi, sin, cos, tan, arctan, sqrt
 import numpy as np
+from numpy import (pi, sin, cos, tan, arctan, sqrt)
 from scipy.optimize import newton
 
+
 def benchmark_parameters():
-    """Returns the benchmark bicycle parameters from [Meijaard2007]_."""
+    """Returns the benchmark bicycle parameters from [Meijaard2007]."""
 
     p = {}
 
@@ -35,6 +36,7 @@ def benchmark_parameters():
     p['IFyy'] = 0.28
 
     return p
+
 
 def benchmark_to_moore(benchmarkParameters):
     """Returns the parameters for the Whipple model as derived by Jason K.
@@ -132,6 +134,7 @@ def benchmark_to_moore(benchmarkParameters):
 
     return mP
 
+
 def lambda_from_132(rF, rR, d1, d3, d2):
     '''Returns the steer axis tilt, lamba, for the parameter set based on the
     offsets from the steer axis.
@@ -156,6 +159,7 @@ def lambda_from_132(rF, rR, d1, d3, d2):
         The steer axis tilt as described in Meijaard2007.
 
     '''
+
     def lam_equality(lam, rF, rR, d1, d3, d2):
         return sin(lam) - (rF - rR + d2 * cos(lam)) / (d1 + d3)
 
@@ -167,8 +171,10 @@ def lambda_from_132(rF, rR, d1, d3, d2):
 
     return lam
 
+
 def pitch_from_roll_and_steer(q2, q4, rF, rR, d1, d2, d3, guess=None):
     """Returns the pitch angle from equation derived from holonomic equation.
+
     Parameter
     ---------
     q2: float
@@ -191,6 +197,7 @@ def pitch_from_roll_and_steer(q2, q4, rF, rR, d1, d2, d3, guess=None):
     ------
     q3: float
         Pitch angle.
+
     """
 
     def pitch_constraint(q3, q2, q4, rF, rR, d1, d2, d3):
@@ -215,6 +222,7 @@ def pitch_from_roll_and_steer(q2, q4, rF, rR, d1, d2, d3, guess=None):
 
     return q3
 
+
 def basu_table_one_output():
 
     basu = {}
@@ -229,6 +237,7 @@ def basu_table_one_output():
     basu['betafdd'] = 2.4548072904550
 
     return basu
+
 
 def basu_table_one_input():
 
@@ -255,6 +264,7 @@ def basu_table_one_input():
     basu['betafd'] = 8.0133620584155
  
     return basu
+
 
 def basu_to_stefen_input(basu, rr, lam):
     """Returns the coordinates and speeds of the Whipple bicycle model Stefen 
@@ -300,6 +310,7 @@ def basu_to_stefen_input(basu, rr, lam):
     stefen['u6'] = -basu['betafd']
 
     return stefen
+
 
 def basu_to_stefen_output(basu):
     """Returns the differentiation of speeds of the Whipple bicycle model 
