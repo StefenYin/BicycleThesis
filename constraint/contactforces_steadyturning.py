@@ -1,12 +1,15 @@
 import model as mo
 import bicycle as bi
 import steadyturning as st
+
 import sympy as sym
+
 from numpy import pi
+
 
 #=============
 #bicycle model
-biModel = mo.bicycle_model() #class
+biModel = mo.BicycleModel()
 
 biModel.forcing_full() #forceFull matrix
 
@@ -17,6 +20,7 @@ contact_forces = biModel.conForceNoncontri
 #states assignment
 u1, u3, u6 = biModel.speedsDe
 u2, u4, u5 = biModel.speedsInde
+
 T4 = biModel.inputForces[0]
 Fx_r, Fy_r, Fx_f, Fy_f = biModel.auxiliaryForces
 
@@ -27,25 +31,27 @@ bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
 
 biModel.parameters_symbols(mp)
-
 para_dict = biModel.parameters
 
 
 #=============================
 # steady turning configuration
 
-#ud
+#ud: {u1d: 0.0, u2d: 0.0, u3d: 0.0, u4d: 0.0, u5d: 0.0, u6d: 0.0}
 ud_dict = st.speeds_zeros(biModel.speedsDerivative)
-#ud_dict = {u1d: 0.0, u2d: 0.0, u3d: 0.0, u4d: 0.0, u5d: 0.0, u6d: 0.0}
 
 #u
 u_dict = {u2: 0.0, u3: 0.0, u4: 0.0}
 
-class steady_turning:
-    def __init__(self, lean, steer):
+class SteadyTurning(object):
+    """Steady turning class for equalibrium values and contact forces."""
 
-        #q
+
+    def __init__(self, lean, steer):
+		"""Given lean and steer angles for a steady-turning configuration."""
+
         #lean = pi/8;  steer = pi/4
+
 
         #===================
         # equilibrium values
@@ -59,7 +65,6 @@ class steady_turning:
         print q_dict, 
         print q_dict_d, '\n'
 
-
         #dynamic equations
         print ('dynamic equations')
         dynamic_equ = st.forcing_dynamic_equations(biModel.forceFull, 
@@ -67,7 +72,6 @@ class steady_turning:
         self.dynamicEquation = dynamic_equ
 
         print dynamic_equ, '\n'
-
 
         #nonholonomic equations
         print ('nonholonomic equations')
@@ -78,7 +82,6 @@ class steady_turning:
         print inde_expression
         print inde_expression_list, '\n'
 
-
         #combination
         dynamic_nonho_equ = st.dynamic_nonholonomic_equations(inde_expression_list, 
                                                                 dynamic_equ)
@@ -86,10 +89,9 @@ class steady_turning:
 
         print dynamic_nonho_equ, '\n'
 
-
         #Calculations
         print ('Calculation')
-        u5_value = sym.solve(dynamic_nonho_equ[0], u5)[0]  #choose the negative value
+        u5_value = sym.solve(dynamic_nonho_equ[0], u5)[0] #choose the negative value
 
         u_others_dict = {u5: u5_value}
 
