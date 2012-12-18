@@ -3,14 +3,17 @@
 #             linearized with benchmark
 ########################################
 
+import pdb
+
 import bicycle as bi
 import model as mo
-import pdb
+
 
 #======================
 print ('bicycle model')
-#call Class bicycle_model
-biModel = mo.bicycle_model()
+
+#call Class BicycleModel
+biModel = mo.BicycleModel()
 
 biModel.forcing_full() #for F_full
 
@@ -21,18 +24,16 @@ biModel.mass_matrix_full() #for MM_full
 print ('parameters')
 
 bp = bi.benchmark_parameters()
-
 mp = bi.benchmark_to_moore(bp)
 
 biModel.parameters_symbols(mp)
-
 para_dict = biModel.parameters
 
 
 #===============================
-print ('zero auxiliary speeds')
-biModel.auxiliary_speeds_zero()
+print ('zero auxiliary speeds\n')
 
+biModel.auxiliary_speeds_zero()
 ua_dict = biModel.auxiliarySpeedsZeros
 
 
@@ -63,10 +64,22 @@ biModel.speeds_dynamicsymbols(stefen_output) #actually, stefen_output includes
 output_dict = biModel.speeds
 
 #for calculation of output
-mass_full_nonlin = biModel.mmFull.subs(ua_dict).subs(steerTorque).subs(para_dict).subs(input_states_dict).subs(deri)
-force_full_nonlin = biModel.forceFull.subs(ua_dict).subs(steerTorque).subs(para_dict).subs(input_states_dict).subs(deri)
+mass_full_nonlin = biModel.mmFull.subs(
+                                    ua_dict).subs(
+                                    steerTorque).subs(
+                                    para_dict).subs(
+                                    input_states_dict).subs(
+                                    deri)
+
+force_full_nonlin = biModel.forceFull.subs(
+                                        ua_dict).subs(
+                                        steerTorque).subs(
+                                        para_dict).subs(
+                                        input_states_dict).subs(
+                                        deri)
 
 output_cal = mass_full_nonlin.inv()*force_full_nonlin
+#assertation: compare with output_dict
 
 
 
@@ -84,8 +97,15 @@ mass_full_lin = biModel.mmFull.subs(para_dict).subs(linearized_confi).evalf()
 biModel.linearized_a()
 #biModel.linearized_b()
 
-forcing_lin_A = biModel.forcingLinA.subs(ua_dict).subs(para_dict).subs(linearized_confi).evalf()
-#forcing_lin_B = biModel.forcingLinB.subs(ua_dict).subs(para_dict).subs(linearized_confi).evalf()
+forcing_lin_A = biModel.forcingLinA.subs(
+                                        ua_dict).subs(
+                                        para_dict).subs(
+                                        linearized_confi).evalf()
+
+#forcing_lin_B = biModel.forcingLinB.subs(
+                                        #ua_dict).subs(
+                                        #para_dict).subs(
+                                        #linearized_confi).evalf()
 
 Amat = mass_full_lin.inv() * forcing_lin_A
 #Bmat = mass_full_lin.inv() * forcing_lin_B
