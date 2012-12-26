@@ -335,7 +335,7 @@ def basu_to_stefen_output(basu):
 
     stefen = {}
 
-    # speeds
+    # accelerations
     stefen['u1d'] = -basu['thetadd']
     stefen['u2d'] = -basu['psidd']
     stefen['u3d'] = -basu['phidd']
@@ -344,3 +344,19 @@ def basu_to_stefen_output(basu):
     stefen['u6d'] = -basu['betafdd']
 
     return stefen
+
+def stefen_to_basu_output(stefen):
+    """Returns the reverse conversion of basu_to_stefen_output function, in
+    order to compare the results in Basu-Mandal paper."""
+
+    basu = {}
+
+    #accelerations
+    basu['thetadd'] = -stefen['u1d']
+    basu['psidd'] = -stefen['u2d']
+    basu['phidd'] = -stefen['u3d']
+    basu['psifdd'] = -stefen['u4d']
+    basu['betardd'] = -stefen['u5d']
+    basu['betafdd'] = -stefen['u6d']
+
+    return basu
