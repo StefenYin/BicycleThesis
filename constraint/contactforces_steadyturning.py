@@ -48,7 +48,7 @@ class SteadyTurning(object):
 
 
     def __init__(self, lean, steer):
-		"""Given lean and steer angles for a steady-turning configuration."""
+        """Given lean and steer angles for a steady-turning configuration."""
 
         #lean = pi/8;  steer = pi/4
 
