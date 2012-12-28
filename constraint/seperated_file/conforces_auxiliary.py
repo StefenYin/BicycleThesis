@@ -175,7 +175,7 @@ lateral_v = mec.cross (A['3'], long_v).normalize()
 
 ###################################################rear wheel contact point, dn
 dn = mec.Point('dn')
-dn.set_vel(N, ua1 * A['1'] + ua2 * A['2'])
+dn.set_vel(N, ua1 * A['1'] + ua2 * A['2'] + ua3 * A['3'])
 #dn.set_vel(N, ua1 * N['1'] + ua2 * N['2'] + ua3 * N['3'])
 
 
@@ -207,7 +207,7 @@ ce.a2pt_theory(do, N, C)
 
 ##################################################Front wheel contact point, fn
 fn = mec.Point('fn')
-fn.set_vel(N, ua4 * long_v + ua5 * lateral_v)
+fn.set_vel(N, ua4 * long_v + ua5 * lateral_v + ua6 * A['3'])
 #fn.set_vel(N, ua4 * N['1'] + ua5 * N['2'] + ua6 * N['3'])
 
 
@@ -283,8 +283,8 @@ Feo = (eo, me * g * A['3'])
 Ffo = (fo, mf * g * A['3'])
 
 #road_wheel contact forces
-F_r = (dn, Fx_r * A['1'] + Fy_r * A['2'])
-F_f = (fn, Fx_f * long_v + Fy_f * lateral_v)
+F_r = (dn, Fx_r * A['1'] + Fy_r * A['2'] + Fz_r * A['3'])
+F_f = (fn, Fx_f * long_v + Fy_f * lateral_v + Fz_f * A['3'])
 
 #F_r = (dn, Fx_r * N['1'] + Fy_r * N['2'] + Fz_r * N['3'])
 #F_f = (fn, Fx_f * N['1'] + Fy_f * N['2'] + Fz_f * N['3'])
@@ -305,7 +305,7 @@ print ('Kanes method')
 kane = mec.KanesMethod(N, q_ind=[q1, q2, q4], u_ind=[u2, u4, u5], 
     kd_eqs=kinematical, q_dependent=[q3], configuration_constraints=holonomic, 
     u_dependent=[u1, u3, u6], velocity_constraints=nonholonomic, 
-    u_auxiliary=[ua1, ua2, ua4, ua5])
+    u_auxiliary=[ua1, ua2, ua3, ua4, ua5, ua6])
 #reminder: u1--yaw rate, u2--roll rate, u3--pitch rate, u4--steer rate, 
 #u5--rear wheel ang. vel., u6--front wheel ang. vel.
 
@@ -325,7 +325,7 @@ con_forces_noncontri = kane.auxiliary_eqs.applyfunc(
         lambda w: factor_terms(signsimp(w))).subs(kdd)
 
 CF = con_forces_noncontri
-
+"""
 #==============================================================================
 print('building a file and writing the equations into it')
 
@@ -448,3 +448,4 @@ for num in range(number):
     f.write ('\n\n')
 
 f.close()
+"""
