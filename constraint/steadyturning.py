@@ -152,16 +152,16 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
     #dependent generalized speeds
     nonho_coeff_de_sym = [[value.expand().coeff(u1), value.expand().coeff(u3), 
                            value.expand().coeff(u6)] for value in nonholonomic]
-    
+
     nonho_coeff_inde_value = [[value.subs(parameters).subs(qDict) for value in value_1] 
                               for value_1 in nonho_coeff_inde_sym]
-    
+
     nonho_coeff_de_value = [[value.subs(parameters).subs(qDict) for value in value_1] 
                             for value_1 in nonho_coeff_de_sym]
-    
+
     #independent speeds
     inde_states = matrix([[u2], [u4], [u5]])
-    
+
     nonho_coeff_inde_ma = asmatrix(nonho_coeff_inde_value)
     nonho_coeff_de_ma = asmatrix(nonho_coeff_de_value)
 
@@ -170,7 +170,7 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
 
     inde_expression = [value[0] for value in inde_expression_arr]
     inde_expression_subs = [value[0].subs(uDict) for value in inde_expression_arr]
-    
+
     return inde_expression, inde_expression_subs
 
 
