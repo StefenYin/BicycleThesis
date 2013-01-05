@@ -75,15 +75,15 @@ class SteadyTurning(object):
 
         #nonholonomic equations
         print ('nonholonomic equations')
-        inde_expression, inde_expression_list = st.de_by_inde(biModel.nonholonomic, 
+        inde_expression, inde_expression_subs = st.de_by_inde(biModel.nonholonomic, 
                                                         q_dict, para_dict, u_dict)
-        self.nonholoEquation = inde_expression_list
+        self.nonholoEquation = inde_expression_subs
 
         print inde_expression
-        print inde_expression_list, '\n'
+        print inde_expression_subs, '\n'
 
         #combination
-        dynamic_nonho_equ = st.dynamic_nonholonomic_equations(inde_expression_list, 
+        dynamic_nonho_equ = st.dynamic_nonholonomic_equations(inde_expression_subs, 
                                                                 dynamic_equ)
         self.dynamicnonholoEquation = dynamic_nonho_equ
 
@@ -97,8 +97,8 @@ class SteadyTurning(object):
 
         T4_value = sym.solve(dynamic_nonho_equ[1], T4)[0].subs(u_others_dict)
 
-        u1_value = inde_expression_list[0].subs(u_others_dict)
-        u6_value = inde_expression_list[2].subs(u_others_dict)
+        u1_value = inde_expression_subs[0].subs(u_others_dict)
+        u6_value = inde_expression_subs[2].subs(u_others_dict)
 
         u_others_dict.update(dict(zip([u1, u6, T4], [u1_value, u6_value, T4_value])))
 

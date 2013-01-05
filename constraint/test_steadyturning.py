@@ -54,11 +54,11 @@ dynamic_equ = sTurning.forcing_dynamic_equations(biModel.forceFull,
 print dynamic_equ, '\n'
 
 #nonholonomic equations
-inde_expression, inde_expression_list = sTurning.de_by_inde(biModel.nonholonomic, 
+inde_expression, inde_expression_subs = sTurning.de_by_inde(biModel.nonholonomic, 
                                                 q_dict, para_dict, u_dict)
 print inde_expression
-print inde_expression_list, '\n'
+print inde_expression_subs, '\n'
 
 #substitution
-dynamic_nonho_equ = sTurning.dynamic_nonholonomic_equations(inde_expression_list, dynamic_equ)
+dynamic_nonho_equ = sTurning.dynamic_nonholonomic_equations(inde_expression_subs, dynamic_equ)
 print dynamic_nonho_equ, '\n'

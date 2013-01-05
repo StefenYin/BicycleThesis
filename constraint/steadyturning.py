@@ -166,11 +166,12 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
     nonho_coeff_de_ma = asmatrix(nonho_coeff_de_value)
 
     inde_expression_ma = (nonho_coeff_de_ma.I) * (- nonho_coeff_inde_ma * inde_states)
-    inde_expression = asarray(inde_expression_ma)
+    inde_expression_arr = asarray(inde_expression_ma)
+
+    inde_expression = [value[0] for value in inde_expression_arr]
+    inde_expression_subs = [value[0].subs(uDict) for value in inde_expression_arr]
     
-    inde_expression_list = [value[0].subs(uDict) for value in inde_expression]
-    
-    return inde_expression, inde_expression_list
+    return inde_expression, inde_expression_subs
 
 
 def dynamic_nonholonomic_equations(indeExpression_list, dynamicEquations):
