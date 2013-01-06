@@ -1,5 +1,7 @@
 """
-Test bicycle
+test_bicycle module:
+1, test parameters, pitch angles and basu inputs and outputs according to
+   Jason's DynamicistToolKit package.
 """
 
 import bicycle as bi

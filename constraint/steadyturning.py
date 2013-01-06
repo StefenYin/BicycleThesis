@@ -1,3 +1,10 @@
+"""
+Steadyturning module:
+1, building steady turning configuration;
+2, special u's as zeros, roll, pitch and steer rates;
+3, equilibrium values: dynamic equations & nonholonomic equations & combination.
+"""
+
 import bicycle as bi
 
 import sympy as sym

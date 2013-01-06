@@ -1,3 +1,10 @@
+"""
+Bicycle module:
+1, bicycle parameters transfermation from benchmark set to moore set;
+2, pitch angle setting from holonomic constraint equation;
+3, Basu-mandal states inputs and outputs.
+"""
+
 import numpy as np
 from numpy import (pi, sin, cos, tan, arctan, sqrt)
 from scipy.optimize import newton

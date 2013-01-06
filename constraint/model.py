@@ -1,3 +1,12 @@
+"""
+Model module:
+1, building model;
+2, mass_matrix_full, forcing_full, linearized;
+3, parameters, coordinates, speeds convert from string to symbols;
+4, zero auxiliary speeds, reference configuration;
+5, contact forces.
+"""
+
 import os
 import pdb
 

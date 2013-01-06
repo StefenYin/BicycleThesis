@@ -1,3 +1,9 @@
+"""
+contactforces_steadyturning module:
+1, building bicycle model and states, input parameters
+2, building a class of SteadyTurning, primarily for contact forces.
+"""
+
 import model as mo
 import bicycle as bi
 import steadyturning as st

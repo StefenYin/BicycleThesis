@@ -1,5 +1,7 @@
 """
-Test steadyturning_funcs
+test_steadyturning module:
+1, building BicycleModel and importing parameters;
+2, trying steady turning functions in reference configuration.
 """
 
 import bicycle as bi
@@ -8,8 +10,6 @@ import model as mo
 
 import sympy.physics.mechanics as mec
 
-
-# Bicycle model
 
 # Call Class BicycleModel: biModel
 # forcing_full

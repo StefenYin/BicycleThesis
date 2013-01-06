@@ -1,6 +1,8 @@
 """
-Test model, nonlinear with basu
-            linearized with benchmark
+test_model module:
+1, importing BicycleModel, benchmark parameters, and zero auxiliary speeds;
+2, nonlinear with basu;
+3, linearized with benchmark.
 """
 
 import pdb
@@ -70,7 +72,7 @@ output_cal = mass_full_nonlin.inv()*force_full_nonlin
 biModel.linearized_reference_configuration(bp['lambda'], mp['rr'], mp['rf'])
 linearized_confi = biModel.referenceConfiguration
 
-# Linearization
+# Benchmark for Linearization
 # mass_full_lin, forcing_lin_A for A matrix
 # Assertation: 
 # import dtk.bicycle as bicycle
