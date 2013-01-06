@@ -54,24 +54,24 @@ class SteadyTurning(object):
 
         # Configuration: e.g. lean = pi/8;  steer = pi/4
         q_dict, q_dict_d = st.configuration(lean, steer, mp)
-        self.configuration = q_dict
-        self.configurationDegree = q_dict_d
+        self._configuration = q_dict
+        self._configurationDegree = q_dict_d
 
         # Dynamic equations
         # Nonholonomic equations
         dynamic_equ = st.forcing_dynamic_equations(biModel.forceFull, 
                                                     para_dict, q_dict, u_dict)
-        self.dynamicEquation = dynamic_equ
+        self._dynamicEquation = dynamic_equ
 
         inde_expression, inde_expression_subs = st.de_by_inde(biModel._nonholonomic, 
                                                         q_dict, para_dict, u_dict)
-        self.nonholoEquation = inde_expression
-        self.nonholoEquationSubs = inde_expression_subs
+        self._nonholoEquation = inde_expression
+        self._nonholoEquationSubs = inde_expression_subs
 
         # Combination (Substitution)
         dynamic_nonho_equ = st.dynamic_nonholonomic_equations(inde_expression_subs, 
                                                                 dynamic_equ)
-        self.dynamicnonholoEquation = dynamic_nonho_equ
+        self._dynamicnonholoEquation = dynamic_nonho_equ
 
         # Equilibrium values: u5_value, T4_value, u1_value, u6_value
         # Here, should consider more condition, but only choose the negative value
@@ -85,12 +85,12 @@ class SteadyTurning(object):
         u6_value = inde_expression_subs[2].subs(u_others_dict)
 
         u_others_dict.update(dict(zip([u1, u6, T4], [u1_value, u6_value, T4_value])))
-        self.equilibrium = u_others_dict
+        self._equilibrium = u_others_dict
 
         # Contact forces in each body-fixed coord
         contact_forces_st = [value.subs(ud_dict).subs(u_dict).subs(para_dict).subs(q_dict).subs(u_others_dict) 
                           for value in contact_forces]
-        self.contactForces = contact_forces_st
+        self._contactForces = contact_forces_st
 
         contact_forces_value = sym.solve(contact_forces_st, [Fx_r, Fy_r, Fx_f, Fy_f])
-        self.contactForcesValue = contact_forces_value
+        self._contactForcesValue = contact_forces_value
