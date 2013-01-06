@@ -269,24 +269,29 @@ class BicycleModel(object):
 
         self.mmFull = self._kane.mass_matrix_full.subs(self._kdd)
 
+        return self.mmFull
+
 
     def forcing_full(self):
         """Returns forcing matrix."""
 
         self.forceFull = self._kane.forcing_full.subs(self._kdd)
 
+        return self.forceFull
 
     def linearized_a(self):
         """linearization of focing matrix, obtaining A matrix."""
 
         self.forcingLinA = self._kane.linearize()[0].subs(self._kdd)
 
+        return self.forcingLinA
 
     def linearized_b(self):
         """linearization of forcing matrix, obtaining  B matrix."""
 
         self.forcingLinB = self._kane.linearize()[1].subs(self._kdd)
 
+        return self.forcingLinB
 
     def parameters_symbols(self, mooreParameters):
         """Returns a dictionary of parameters whose keys are symbols instead of
@@ -298,6 +303,7 @@ class BicycleModel(object):
         for key, value in mp.items():
             self.parameters.update(dict(zip([sym.symbols(key)], [value])))
 
+        return self.parameters
 
     def coordinates_dynamicsymbols(self, coordinates):
         """Returns a dictionary of coordinates whose keys are dynamic symbols 
@@ -308,6 +314,7 @@ class BicycleModel(object):
         for key, value in coordinates.items():
             self.coordinates.update(dict(zip([mec.dynamicsymbols(key)], [value])))
 
+        return self.coordinates
 
     def speeds_dynamicsymbols(self, speeds):
         """Returns a dictionary of speeds whose keys are dynamic symbols 
@@ -318,6 +325,7 @@ class BicycleModel(object):
         for key, value in speeds.items():
             self.speeds.update(dict(zip([mec.dynamicsymbols(key)], [value])))
 
+        return self.speeds
 
     def auxiliary_speeds_zero(self):
         """Returns a dictionary of zero auxiliary speeds."""
@@ -325,6 +333,7 @@ class BicycleModel(object):
         self.auxiliarySpeedsZeros = dict(zip(self._auxiliarySpeeds, 
                                             zeros(len(self._auxiliarySpeeds))))
 
+        return self.auxiliarySpeedsZeros
 
     def linearized_reference_configuration(self, lam, rR, rF):
         """Returns the linearized model at the reference configuration."""
@@ -339,6 +348,7 @@ class BicycleModel(object):
         self.referenceConfiguration = {q1: 0., q2: 0., q3:lam, q4:0., u1:0., 
         u2:0., u3:0., u4:0., u5: -v/rR, u6: -v/rF}
 
+        return self.referenceConfiguration
 
     def contact_forces(self):
         """Returns contact forces on each wheel."""
@@ -346,3 +356,4 @@ class BicycleModel(object):
         self.conForceNoncontri = self._kane.auxiliary_eqs.applyfunc(
                             lambda w: factor_terms(signsimp(w))).subs(self._kdd)
 
+        return self.conForceNoncontri

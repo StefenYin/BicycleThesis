@@ -17,11 +17,8 @@ from numpy import pi
 # conForceNoncontri
 biModel = mo.BicycleModel()
 
-biModel.forcing_full()
-
-biModel.contact_forces()
-
-contact_forces = biModel.conForceNoncontri
+forceFull = biModel.forcing_full()
+contact_forces = biModel.contact_forces()
 
 # States assignment
 # Parameters
@@ -33,9 +30,7 @@ Fx_r, Fy_r, Fx_f, Fy_f = biModel._auxiliaryForces
 
 bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
-
-biModel.parameters_symbols(mp)
-para_dict = biModel.parameters
+para_dict = biModel.parameters_symbols(mp)
 
 # Steady turning configuration:
 # ud: {u1d: 0.0, u2d: 0.0, u3d: 0.0, u4d: 0.0, u5d: 0.0, u6d: 0.0}
@@ -59,7 +54,7 @@ class SteadyTurning(object):
 
         # Dynamic equations
         # Nonholonomic equations
-        dynamic_equ = st.forcing_dynamic_equations(biModel.forceFull, 
+        dynamic_equ = st.forcing_dynamic_equations(forceFull, 
                                                     para_dict, q_dict, u_dict)
         self._dynamicEquation = dynamic_equ
 
