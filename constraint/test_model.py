@@ -36,7 +36,7 @@ ua_dict = biModel.auxiliarySpeedsZeros
 # Basu inputs and outputs to stefen ones: input_states_dict, output_dict.
 # Calculation: output_cal
 # Assertation: assert output_cal == output_dict
-T4 = biModel.inputForces[0]
+T4 = biModel._inputForces[0]
 steerTorque = {T4: 0.0}
 
 deri = {'Derivative(0, t)': 0.0}

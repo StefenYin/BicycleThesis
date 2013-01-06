@@ -42,11 +42,11 @@ class BicycleModel(object):
         u1d, u2d, u3d, u4d = mec.dynamicsymbols('u1 u2 u3 u4', 1)
         u5d, u6d = mec.dynamicsymbols('u5 u6', 1)
 
-        self.coordinatesInde = [q1, q2, q4]
-        self.coordinatesDe = [q3]
-        self.speedsInde = [u2, u4, u5]
-        self.speedsDe = [u1, u3, u6]
-        self.speedsDerivative = [u1d, u2d, u3d, u4d, u5d, u6d]
+        self._coordinatesInde = [q1, q2, q4]
+        self._coordinatesDe = [q3]
+        self._speedsInde = [u2, u4, u5]
+        self._speedsDe = [u1, u3, u6]
+        self._speedsDerivative = [u1d, u2d, u3d, u4d, u5d, u6d]
 
         # Axiliary speeds at contact points:
         # Rear wheel: ua1, ua2
@@ -54,7 +54,7 @@ class BicycleModel(object):
         ua1, ua2 = mec.dynamicsymbols ('ua1 ua2')
         ua4, ua5 = mec.dynamicsymbols ('ua4 ua5')
 
-        self.auxiliarySpeeds = [ua1, ua2, ua4, ua5]
+        self._auxiliarySpeeds = [ua1, ua2, ua4, ua5]
 
         # Reference Frames:
         # Newtonian Frame: N
@@ -195,8 +195,8 @@ class BicycleModel(object):
         v_SAF_2 = fo.vel(N) + mec.cross(E.ang_vel_in(N), SAF.pos_from(fo))
 
         # Holo and nonholo Constraints:
-        self.holonomic = [fn.pos_from(dn).dot(A['3'])]
-        self.nonholonomic = [(v_SAF_1-v_SAF_2).dot(uv) for uv in E]
+        self._holonomic = [fn.pos_from(dn).dot(A['3'])]
+        self._nonholonomic = [(v_SAF_1-v_SAF_2).dot(uv) for uv in E]
 
         # Rigid Bodies:
         # Inertia: Ic, Id, Ie, If
@@ -240,8 +240,8 @@ class BicycleModel(object):
 
         forceList = [Fco, Fdo, Feo, Ffo, F_r, F_f, Tc, Te]
 
-        self.inputForces = [T4]
-        self.auxiliaryForces = [Fx_r, Fy_r, Fx_f, Fy_f]
+        self._inputForces = [T4]
+        self._auxiliaryForces = [Fx_r, Fy_r, Fx_f, Fy_f]
 
         # Kinematical Differential Equations:
         kinematical = [q1d - u1,
@@ -250,42 +250,42 @@ class BicycleModel(object):
                        q4d - u4]
 
         # Kanes Method:
-        self.kane = mec.KanesMethod(
-            N, q_ind=self.coordinatesInde, u_ind=self.speedsInde, kd_eqs=kinematical, 
-            q_dependent=self.coordinatesDe, configuration_constraints=self.holonomic, 
-            u_dependent=self.speedsDe, velocity_constraints=self.nonholonomic, 
-            u_auxiliary=self.auxiliarySpeeds
+        self._kane = mec.KanesMethod(
+            N, q_ind=self._coordinatesInde, u_ind=self._speedsInde, kd_eqs=kinematical, 
+            q_dependent=self._coordinatesDe, configuration_constraints=self._holonomic, 
+            u_dependent=self._speedsDe, velocity_constraints=self._nonholonomic, 
+            u_auxiliary=self._auxiliarySpeeds
             )
 
-        (fr, frstar)= self.kane.kanes_equations(forceList, bodyList)
+        (fr, frstar)= self._kane.kanes_equations(forceList, bodyList)
 
-        self.Fr = fr
-        self.Fr_star = frstar
-        self.kdd = self.kane.kindiffdict()
+        self._Fr = fr
+        self._Fr_star = frstar
+        self._kdd = self._kane.kindiffdict()
 
 
     def mass_matrix_full(self):
         """Returns mass matrix."""
 
-        self.mmFull = self.kane.mass_matrix_full.subs(self.kdd)
+        self.mmFull = self._kane.mass_matrix_full.subs(self._kdd)
 
 
     def forcing_full(self):
         """Returns forcing matrix."""
 
-        self.forceFull = self.kane.forcing_full.subs(self.kdd)
+        self.forceFull = self._kane.forcing_full.subs(self._kdd)
 
 
     def linearized_a(self):
         """linearization of focing matrix, obtaining A matrix."""
 
-        self.forcingLinA = self.kane.linearize()[0].subs(self.kdd)
+        self.forcingLinA = self._kane.linearize()[0].subs(self._kdd)
 
 
     def linearized_b(self):
         """linearization of forcing matrix, obtaining  B matrix."""
 
-        self.forcingLinB = self.kane.linearize()[1].subs(self.kdd)
+        self.forcingLinB = self._kane.linearize()[1].subs(self._kdd)
 
 
     def parameters_symbols(self, mooreParameters):
@@ -322,8 +322,8 @@ class BicycleModel(object):
     def auxiliary_speeds_zero(self):
         """Returns a dictionary of zero auxiliary speeds."""
 
-        self.auxiliarySpeedsZeros = dict(zip(self.auxiliarySpeeds, 
-                                            zeros(len(self.auxiliarySpeeds))))
+        self.auxiliarySpeedsZeros = dict(zip(self._auxiliarySpeeds, 
+                                            zeros(len(self._auxiliarySpeeds))))
 
 
     def linearized_reference_configuration(self, lam, rR, rF):
@@ -331,10 +331,10 @@ class BicycleModel(object):
 
         v = sym.Symbol('v')
 
-        q1, q2, q4 = self.coordinatesInde
-        q3 = self.coordinatesDe[0]
-        u2, u4, u5 = self.speedsInde
-        u1, u3, u6 = self.speedsDe
+        q1, q2, q4 = self._coordinatesInde
+        q3 = self._coordinatesDe[0]
+        u2, u4, u5 = self._speedsInde
+        u1, u3, u6 = self._speedsDe
 
         self.referenceConfiguration = {q1: 0., q2: 0., q3:lam, q4:0., u1:0., 
         u2:0., u3:0., u4:0., u5: -v/rR, u6: -v/rF}
@@ -343,6 +343,6 @@ class BicycleModel(object):
     def contact_forces(self):
         """Returns contact forces on each wheel."""
 
-        self.conForceNoncontri = self.kane.auxiliary_eqs.applyfunc(
-                            lambda w: factor_terms(signsimp(w))).subs(self.kdd)
+        self.conForceNoncontri = self._kane.auxiliary_eqs.applyfunc(
+                            lambda w: factor_terms(signsimp(w))).subs(self._kdd)
 

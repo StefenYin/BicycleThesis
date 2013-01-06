@@ -25,11 +25,11 @@ contact_forces = biModel.conForceNoncontri
 
 # States assignment
 # Parameters
-u1, u3, u6 = biModel.speedsDe
-u2, u4, u5 = biModel.speedsInde
+u1, u3, u6 = biModel._speedsDe
+u2, u4, u5 = biModel._speedsInde
 
-T4 = biModel.inputForces[0]
-Fx_r, Fy_r, Fx_f, Fy_f = biModel.auxiliaryForces
+T4 = biModel._inputForces[0]
+Fx_r, Fy_r, Fx_f, Fy_f = biModel._auxiliaryForces
 
 bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
@@ -40,7 +40,7 @@ para_dict = biModel.parameters
 # Steady turning configuration:
 # ud: {u1d: 0.0, u2d: 0.0, u3d: 0.0, u4d: 0.0, u5d: 0.0, u6d: 0.0}
 # u: u2, u3, and u4
-ud_dict = st.speeds_zeros(biModel.speedsDerivative)
+ud_dict = st.speeds_zeros(biModel._speedsDerivative)
 u_dict = {u2: 0.0, u3: 0.0, u4: 0.0}
 
 
@@ -63,7 +63,7 @@ class SteadyTurning(object):
                                                     para_dict, q_dict, u_dict)
         self.dynamicEquation = dynamic_equ
 
-        inde_expression, inde_expression_subs = st.de_by_inde(biModel.nonholonomic, 
+        inde_expression, inde_expression_subs = st.de_by_inde(biModel._nonholonomic, 
                                                         q_dict, para_dict, u_dict)
         self.nonholoEquation = inde_expression
         self.nonholoEquationSubs = inde_expression_subs
