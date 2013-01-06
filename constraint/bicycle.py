@@ -55,6 +55,7 @@ def benchmark_to_moore(benchmarkParameters):
         as presented in Moore2012.
 
     """
+
     bP = benchmarkParameters
     mP = {}
 
@@ -83,29 +84,37 @@ def benchmark_to_moore(benchmarkParameters):
     mP['mf'] =  bP['mF']
 
     # inertia
-    # rear wheel inertia
+    # rear wheel inertia: id
+    # front wheel inertia: if
     mP['id11']  =  bP['IRxx']
     mP['id22']  =  bP['IRyy']
     mP['id33']  =  bP['IRxx']
 
-    # front wheel inertia
     mP['if11']  =  bP['IFxx']
     mP['if22']  =  bP['IFyy']
     mP['if33']  =  bP['IFxx']
 
-    # lambda rotation matrix
+    # lambda rotation matrix: R
+    # rotate the benchmark bicycle back frame inertia through the steer axis 
+    # tilt, lambda -> IBrot
+    # bicycle rear frame inertia: ic
+    # rotate the benchmark bicycle fork inertia through the steer axis tilt,
+    # lambda -> IHrot
+    # fork/handlebar inertia: ie
+    # gravity: g
     R = np.matrix([[cos(bP['lam']), 0, -sin(bP['lam'])],
-            [0, 1,  0],          
+            [0, 1,  0],
             [sin(bP['lam']), 0,  cos(bP['lam'])]])
-
-    # rotate the benchmark bicycle back frame inertia through the 
-    #steer axis tilt, lambda
     IB =  np.matrix([[bP['IBxx'], 0., bP['IBxz']],
                      [0., bP['IByy'], 0.],
                      [bP['IBxz'], 0., bP['IBzz']]])
     IBrot =  R * IB * R.T
 
-    # bicycle frame inertia
+    IH =  np.matrix([[bP['IHxx'], 0., bP['IHxz']],
+                     [0., bP['IHyy'], 0.],
+                     [bP['IHxz'], 0., bP['IHzz']]])
+    IHrot =  R * IH * R.T
+
     mP['ic11'] =  IBrot[0, 0]
     mP['ic12'] =  IBrot[0, 1]
     mP['ic22'] =  IBrot[1, 1]
@@ -113,15 +122,6 @@ def benchmark_to_moore(benchmarkParameters):
     mP['ic31'] =  IBrot[2, 0]
     mP['ic33'] =  IBrot[2, 2]
 
-
-    # rotate the benchmark bicycle fork inertia through the steer axis tilt,
-    # lambda
-    IH =  np.matrix([[bP['IHxx'], 0., bP['IHxz']],
-                     [0., bP['IHyy'], 0.],
-                     [bP['IHxz'], 0., bP['IHzz']]])
-    IHrot =  R * IH * R.T
-
-    # fork/handlebar inertia
     mP['ie11'] =  IHrot[0, 0]
     mP['ie12'] =  IHrot[0, 1]
     mP['ie22'] =  IHrot[1, 1]
@@ -129,7 +129,6 @@ def benchmark_to_moore(benchmarkParameters):
     mP['ie31'] =  IHrot[2, 0]
     mP['ie33'] =  IHrot[2, 2]
 
-    # gravity
     mP['g'] = bP['g']
 
     return mP

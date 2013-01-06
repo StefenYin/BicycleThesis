@@ -1,7 +1,7 @@
 import bicycle as bi
+
 import sympy as sym
 import sympy.physics.mechanics as mec
-
 from numpy import *
 
 
@@ -146,10 +146,11 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
 
     """
 
-    #independent generalized speeds
+    # Independent generalized speeds coefficients: u2, u4 and u5
+    # Dependent generalized speeds coefficients: u1, u3 and u6
     nonho_coeff_inde_sym = [[value.expand().coeff(u2), value.expand().coeff(u4), 
                              value.expand().coeff(u5)] for value in nonholonomic]
-    #dependent generalized speeds
+
     nonho_coeff_de_sym = [[value.expand().coeff(u1), value.expand().coeff(u3), 
                            value.expand().coeff(u6)] for value in nonholonomic]
 
@@ -159,7 +160,7 @@ def de_by_inde(nonholonomic, qDict, parameters, uDict):
     nonho_coeff_de_value = [[value.subs(parameters).subs(qDict) for value in value_1] 
                             for value_1 in nonho_coeff_de_sym]
 
-    #independent speeds
+    # Constraint equations -> de expressed by inde
     inde_states = matrix([[u2], [u4], [u5]])
 
     nonho_coeff_inde_ma = asmatrix(nonho_coeff_inde_value)

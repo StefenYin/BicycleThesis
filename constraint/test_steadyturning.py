@@ -1,6 +1,6 @@
-##########################
-# test steadyturning_funcs
-##########################
+"""
+Test steadyturning_funcs
+"""
 
 import bicycle as bi
 import steadyturning as sTurning
@@ -9,56 +9,41 @@ import model as mo
 import sympy.physics.mechanics as mec
 
 
-#======================
-print ('bicycle model')
+# Bicycle model
 
-#call Class BicycleModel
+# Call Class BicycleModel: biModel
+# forcing_full
 biModel = mo.BicycleModel()
 
-biModel.forcing_full() #for F_full
+biModel.forcing_full()
 
-
-#======================================
-print ('parameters and states values')
-
-#----------
-#parameters
+# Parameters and states values:
+# Parameters
 bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
 
 biModel.parameters_symbols(mp)
 para_dict = biModel.parameters
 
-#-----------------------------
-# test reference configuration
+# Test reference configuration
 # u2-leanrate, u3-pitchrate, u4-steerrate
-
 u2, u3, u4 = mec.dynamicsymbols('u2 u3 u4')
 
 u_dict = sTurning.speeds_zeros([u2, u4])
 
 lean = 0.0; steer = 0.0
 
-
-#========================
-print ('steady turning')
-
-#configuration
+# Steady turning:
+# Configuration
+# Dynamic equations: dynamic_equ
+# Nonholonomic equations: inde_expression, inde_expression_subs
+# Substitution: dynamic_nonho_equ
 q_dict, q_dict_d = sTurning.configuration(lean, steer, mp)
-print q_dict, 
-print q_dict_d, '\n'
 
-#dynamic equations
 dynamic_equ = sTurning.forcing_dynamic_equations(biModel.forceFull, 
                                                 para_dict, q_dict, u_dict)
-print dynamic_equ, '\n'
 
-#nonholonomic equations
 inde_expression, inde_expression_subs = sTurning.de_by_inde(biModel.nonholonomic, 
                                                 q_dict, para_dict, u_dict)
-print inde_expression
-print inde_expression_subs, '\n'
 
-#substitution
 dynamic_nonho_equ = sTurning.dynamic_nonholonomic_equations(inde_expression_subs, dynamic_equ)
-print dynamic_nonho_equ, '\n'

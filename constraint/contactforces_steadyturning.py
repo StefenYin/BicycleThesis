@@ -3,45 +3,41 @@ import bicycle as bi
 import steadyturning as st
 
 import sympy as sym
-
 from numpy import pi
 
 
-#=============
-#bicycle model
+# Bicycle model: biModel
+# forceFull matrix
+# conForceNoncontri
 biModel = mo.BicycleModel()
 
-biModel.forcing_full() #forceFull matrix
+biModel.forcing_full()
 
-biModel.contact_forces() #conForceNoncontri
+biModel.contact_forces()
 
 contact_forces = biModel.conForceNoncontri
 
-#states assignment
+# States assignment
+# Parameters
 u1, u3, u6 = biModel.speedsDe
 u2, u4, u5 = biModel.speedsInde
 
 T4 = biModel.inputForces[0]
 Fx_r, Fy_r, Fx_f, Fy_f = biModel.auxiliaryForces
 
-
-#===========
-# parameters
 bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
 
 biModel.parameters_symbols(mp)
 para_dict = biModel.parameters
 
-
-#=============================
-# steady turning configuration
-
-#ud: {u1d: 0.0, u2d: 0.0, u3d: 0.0, u4d: 0.0, u5d: 0.0, u6d: 0.0}
+# Steady turning configuration:
+# ud: {u1d: 0.0, u2d: 0.0, u3d: 0.0, u4d: 0.0, u5d: 0.0, u6d: 0.0}
+# u: u2, u3, and u4
 ud_dict = st.speeds_zeros(biModel.speedsDerivative)
-
-#u
 u_dict = {u2: 0.0, u3: 0.0, u4: 0.0}
+
+
 
 class SteadyTurning(object):
     """Steady turning class for equalibrium values and contact forces."""
@@ -50,48 +46,30 @@ class SteadyTurning(object):
     def __init__(self, lean, steer):
         """Given lean and steer angles for a steady-turning configuration."""
 
-        #lean = pi/8;  steer = pi/4
-
-
-        #===================
-        # equilibrium values
-
-        #configuration
-        print ('configuration')
+        # Configuration: e.g. lean = pi/8;  steer = pi/4
         q_dict, q_dict_d = st.configuration(lean, steer, mp)
         self.configuration = q_dict
         self.configurationDegree = q_dict_d
 
-        print q_dict, 
-        print q_dict_d, '\n'
-
-        #dynamic equations
-        print ('dynamic equations')
+        # Dynamic equations
+        # Nonholonomic equations
         dynamic_equ = st.forcing_dynamic_equations(biModel.forceFull, 
                                                     para_dict, q_dict, u_dict)
         self.dynamicEquation = dynamic_equ
 
-        print dynamic_equ, '\n'
-
-        #nonholonomic equations
-        print ('nonholonomic equations')
         inde_expression, inde_expression_subs = st.de_by_inde(biModel.nonholonomic, 
                                                         q_dict, para_dict, u_dict)
-        self.nonholoEquation = inde_expression_subs
+        self.nonholoEquation = inde_expression
+        self.nonholoEquationSubs = inde_expression_subs
 
-        print inde_expression
-        print inde_expression_subs, '\n'
-
-        #combination
+        # Combination (Substitution)
         dynamic_nonho_equ = st.dynamic_nonholonomic_equations(inde_expression_subs, 
                                                                 dynamic_equ)
         self.dynamicnonholoEquation = dynamic_nonho_equ
 
-        print dynamic_nonho_equ, '\n'
-
-        #Calculations
-        print ('Calculation')
-        u5_value = sym.solve(dynamic_nonho_equ[0], u5)[0] #choose the negative value
+        # Equilibrium values: u5_value, T4_value, u1_value, u6_value
+        # Here, should consider more condition, but only choose the negative value
+        u5_value = sym.solve(dynamic_nonho_equ[0], u5)[0]
 
         u_others_dict = {u5: u5_value}
 
@@ -101,23 +79,12 @@ class SteadyTurning(object):
         u6_value = inde_expression_subs[2].subs(u_others_dict)
 
         u_others_dict.update(dict(zip([u1, u6, T4], [u1_value, u6_value, T4_value])))
-
         self.equilibrium = u_others_dict
 
-        print u_others_dict, '\n'
-
-
-        #========================================
-        # contact forces in each body-fixed coord
-        print ('Contact forces')
+        # Contact forces in each body-fixed coord
         contact_forces_st = [value.subs(ud_dict).subs(u_dict).subs(para_dict).subs(q_dict).subs(u_others_dict) 
                           for value in contact_forces]
-
         self.contactForces = contact_forces_st
 
-        for value in contact_forces_st:
-            print value, '\n'
-
         contact_forces_value = sym.solve(contact_forces_st, [Fx_r, Fy_r, Fx_f, Fy_f])
-
         self.contactForcesValue = contact_forces_value
