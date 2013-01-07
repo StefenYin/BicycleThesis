@@ -124,6 +124,7 @@ class BicycleModel(object):
         t = sym.symbols('t')
 
         mc, md, me, mf = sym.symbols('mc md me mf')
+        self._massSym = [mc, md, me, mf]
 
         ic11, ic22, ic33, ic31 = sym.symbols('ic11 ic22 ic33 ic31') #rear frame
         id11, id22 = sym.symbols('id11 id22')  #rear wheel
@@ -272,7 +273,7 @@ class BicycleModel(object):
         P = mec.Point('P')
         TC = P.locatenew('TC', Rr*A['2'])
         Q = TC.locatenew('Q', -Rf*lateral_v)
-        self._turningRadius = [Rr, Rf]
+        self._turningRadiusSym = [Rr, Rf]
 
         P_Q_A1 = Q.pos_from(P).dot(A['1'])
         P_Q_A2 = Q.pos_from(P).dot(A['2'])
@@ -281,6 +282,19 @@ class BicycleModel(object):
         fn_dn_A1 = fn.pos_from(dn).dot(A['1'])
         fn_dn_A2 = fn.pos_from(dn).dot(A['2'])
         self._contact_posi_dfn = [fn_dn_A1, fn_dn_A2]
+
+        # Total center of mass:
+        # individual center of mass of four rigid bodies
+        co_dn_A = [mec.dot(co.pos_from(dn), A_x) for A_x in A]
+        do_dn_A = [mec.dot(do.pos_from(dn), A_x) for A_x in A]
+        fo_dn_A = [mec.dot(fo.pos_from(dn), A_x) for A_x in A]
+        eo_dn_A = [mec.dot(eo.pos_from(dn), A_x) for A_x in A]
+
+        self._bodies_dn_A = array(
+                            [[co_dn_A[0], do_dn_A[0], eo_dn_A[0], fo_dn_A[0]], 
+                            [co_dn_A[1], do_dn_A[1], eo_dn_A[1], fo_dn_A[1]],
+                            [co_dn_A[2], do_dn_A[2], eo_dn_A[2], fo_dn_A[2]]]
+                            )
 
 
     def mass_matrix_full(self):

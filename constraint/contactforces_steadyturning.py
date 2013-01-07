@@ -7,9 +7,10 @@ contactforces_steadyturning module:
 import model as mo
 import bicycle as bi
 import steadyturning as st
+import geometry as ge
 
 import sympy as sym
-from numpy import pi
+from numpy import (pi, array, zeros)
 
 
 
@@ -23,14 +24,17 @@ class SteadyTurning(object):
         # Bicycle model: biModel
         # forceFull matrix
         # conForceNoncontri
-        # contact points relative position in a list, but from ways to obtain it.
+        # contact points relative position in a list, but from ways to obtain it
+        # individual centers of mass of four rigid bodies
         biModel = mo.BicycleModel()
 
         self._forceFull = biModel.forcing_full()
         self._contactforcesOrig = biModel.contact_forces()
         self._contactPosition = (biModel._contact_posi_pq + 
                                     biModel._contact_posi_dfn)
-        self._turningRadiusSym = biModel._turningRadius
+        self._turningRadiusSym = biModel._turningRadiusSym
+        self._bodies_dn_A = biModel._bodies_dn_A
+        self._massSym = biModel._massSym
 
         # States assignment
         # Parameters
@@ -56,6 +60,7 @@ class SteadyTurning(object):
 
         # Turning radius
         self.turning_radius()
+        self.total_com()
 
         # Dynamic equations
         # Nonholonomic equations
@@ -135,3 +140,26 @@ class SteadyTurning(object):
 
         self._turningRadiusRearGeo = turn_radius[Rr]
         self._turningRadiusFrontGeo = turn_radius[Rf]
+
+
+    def total_com(self):
+        """Returns total center of mass, position and mass, of four rigid
+        bodies of a bicycle."""
+
+        mp = self._parameters
+        mc, md, me, mf = self._massSym
+
+        coordinates = self._bodies_dn_A
+        row, col = coordinates.shape
+        coordinates_value = zeros((row, col))
+
+        for i in range(row):
+            for j in range(col):
+                value = coordinates[i][j].subs(mp).subs(self._configuration)
+                coordinates_value[i][j] = value
+
+        masses = array([[mp[mc], mp[md], mp[me], mp[mf]]])
+        mT, cT = ge.total_com(coordinates_value, masses)
+
+        self._totalMass = mT
+        self._totalcomA123 = cT.tolist()
