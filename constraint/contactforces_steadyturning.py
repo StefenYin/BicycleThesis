@@ -39,8 +39,8 @@ class SteadyTurning(object):
         self._parameters = mo.strings2symbols(mp, go2type="orsymbols")
 
         # Steady turning configuration:
-        self._ud0s = st.speeds_zeros(biModel._speedsDerivative)
-        self._u0s = {u2: 0., u3: 0., u4: 0.}
+        self._ud0s = mo.zeros_dict(biModel._speedsDerivative)
+        self._u0s = mo.zeros_dict([u2, u3, u4])
 
         self._equilibriumSym = [u1, u5, u6, T4]
         self._contactforcesSym = biModel._auxiliaryForces

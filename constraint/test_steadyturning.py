@@ -8,8 +8,6 @@ import bicycle as bi
 import steadyturning as sTurning
 import model as mo
 
-import sympy.physics.mechanics as mec
-
 
 # Call Class BicycleModel: biModel
 # forcing_full
@@ -25,9 +23,7 @@ para_dict = mo.strings2symbols(mp, go2type="orsymbols")
 
 # Test reference configuration
 # u2-leanrate, u3-pitchrate, u4-steerrate
-u2, u3, u4 = mec.dynamicsymbols('u2 u3 u4')
-
-u_dict = sTurning.speeds_zeros([u2, u4])
+u_dict = mo.zeros_dict(biModel._speeds[1:4])
 
 lean = 0.0; steer = 0.0
 

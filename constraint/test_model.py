@@ -23,7 +23,7 @@ bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
 para_dict = mo.strings2symbols(mp, go2type="orsymbols")
 
-ua_dict = biModel.auxiliary_speeds_zero()
+ua_dict = mo.zeros_dict(biModel._auxiliarySpeeds)
 
 # Basu-Mandal for nonlinear model
 # Input forces or torques: T4 to be zero
@@ -32,9 +32,9 @@ ua_dict = biModel.auxiliary_speeds_zero()
 # Calculation: output_cal
 # Assertation: assert output_cal == output_dict
 T4 = biModel._inputForces[0]
-steerTorque = {T4: 0.0}
+steerTorque = {T4: 0.}
 
-deri = {'Derivative(0, t)': 0.0}
+deri = {'Derivative(0, t)': 0.}
 
 basu_input = bi.basu_table_one_input()
 basu_output = bi.basu_table_one_output()
@@ -61,7 +61,8 @@ output_cal = mass_full_nonlin.inv()*force_full_nonlin
 
 # Linearized model
 # Configuration
-linearized_confi = biModel.linearized_reference_configuration(bp['lambda'], mp['rr'], mp['rf'])
+linearized_confi = biModel.linearized_reference_configuration(bp['lambda'], 
+                                                        mp['rr'], mp['rf'])
 
 # Benchmark for Linearization
 # mass_full_lin, forcing_lin_A for A matrix

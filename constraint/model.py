@@ -44,8 +44,10 @@ class BicycleModel(object):
 
         self._coordinatesInde = [q1, q2, q4]
         self._coordinatesDe = [q3]
+        self._coordinates = [q1, q2, q3, q4]
         self._speedsInde = [u2, u4, u5]
         self._speedsDe = [u1, u3, u6]
+        self._speeds = [u1, u2, u3, u4, u5, u6]
         self._speedsDerivative = [u1d, u2d, u3d, u4d, u5d, u6d]
 
         # Axiliary speeds at contact points:
@@ -279,12 +281,14 @@ class BicycleModel(object):
 
         return self.forceFull
 
+
     def linearized_a(self):
         """linearization of focing matrix, obtaining A matrix."""
 
         self.forcingLinA = self._kane.linearize()[0].subs(self._kdd)
 
         return self.forcingLinA
+
 
     def linearized_b(self):
         """linearization of forcing matrix, obtaining  B matrix."""
@@ -293,13 +297,6 @@ class BicycleModel(object):
 
         return self.forcingLinB
 
-    def auxiliary_speeds_zero(self):
-        """Returns a dictionary of zero auxiliary speeds."""
-
-        self.auxiliarySpeedsZeros = dict(zip(self._auxiliarySpeeds, 
-                                            zeros(len(self._auxiliarySpeeds))))
-
-        return self.auxiliarySpeedsZeros
 
     def linearized_reference_configuration(self, lam, rR, rF):
         """Returns the linearized model at the reference configuration."""
@@ -315,6 +312,7 @@ class BicycleModel(object):
         u2:0., u3:0., u4:0., u5: -v/rR, u6: -v/rF}
 
         return self.referenceConfiguration
+
 
     def contact_forces(self):
         """Returns contact forces on each wheel."""
@@ -361,3 +359,18 @@ def strings2symbols(strings, go2type = None):
             symbols.update(dict(zip([mec.dynamicsymbols(key)], [value])))
 
     return symbols
+
+
+def zeros_dict(symbols):
+    """Returns a dictionary with keys being symbols, values being zeros.
+
+    Parameters
+    ----------
+    symbols: a list
+        A list of symbols or strings.
+
+    """
+
+    zeros_symbols = dict(zip(symbols, zeros(len(symbols))))
+
+    return zeros_symbols
