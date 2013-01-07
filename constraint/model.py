@@ -324,6 +324,8 @@ class BicycleModel(object):
 
         return self.conForceNoncontri
 
+
+
 def strings2symbols(strings, go2type = None):
     """Returns a dictionary with keys being symbols instead of strings.
     Symbols here can be ordinary symbols or dynamic symbols.
