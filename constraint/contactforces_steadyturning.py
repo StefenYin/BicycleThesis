@@ -10,7 +10,7 @@ import steadyturning as st
 import geometry as ge
 
 import sympy as sym
-from numpy import (pi, array, zeros)
+from numpy import (pi, array, zeros, sqrt)
 
 
 
@@ -59,8 +59,9 @@ class SteadyTurning(object):
         self._configurationDegree = q_dict_d
 
         # Turning radius
-        self.turning_radius()
         self.total_com()
+        self.turning_radius()
+
 
         # Dynamic equations
         # Nonholonomic equations
@@ -122,26 +123,6 @@ class SteadyTurning(object):
         return self.contactForcesValue
 
 
-    def turning_radius(self):
-        """Returns the turning radius of two wheels after defining a steady
-        turning configuration."""
-
-        contact_position = [value.subs(self._parameters)
-                            .subs(self._configuration) 
-                            for value in self._contactPosition]
-        self._fn_dn_A1 = contact_position[2]
-        self._fn_dn_A2 = contact_position[3]
-
-        Rr, Rf = self._turningRadiusSym
-
-        turn_radius = sym.solve([contact_position[0] - contact_position[2], 
-                                contact_position[1] - contact_position[3]],
-                                self._turningRadiusSym)
-
-        self._turningRadiusRearGeo = turn_radius[Rr]
-        self._turningRadiusFrontGeo = turn_radius[Rf]
-
-
     def total_com(self):
         """Returns total center of mass, position and mass, of four rigid
         bodies of a bicycle."""
@@ -162,4 +143,27 @@ class SteadyTurning(object):
         mT, cT = ge.total_com(coordinates_value, masses)
 
         self._totalMass = mT
-        self._totalcomA123 = cT.tolist()
+        self._totalComA123 = cT.tolist()
+
+
+    def turning_radius(self):
+        """Returns the turning radius of two wheels and total center of mass
+        after defining a steady turning configuration."""
+
+        contact_position = [value.subs(self._parameters)
+                            .subs(self._configuration) 
+                            for value in self._contactPosition]
+        self._fn_dn_A1 = contact_position[2]
+        self._fn_dn_A2 = contact_position[3]
+
+        Rr, Rf = self._turningRadiusSym
+
+        turn_radius = sym.solve([contact_position[0] - contact_position[2], 
+                                contact_position[1] - contact_position[3]],
+                                self._turningRadiusSym)
+
+        self._turningRadiusRearGeo = turn_radius[Rr]
+        self._turningRadiusFrontGeo = turn_radius[Rf]
+        self._turningRadiusCom = sqrt(float(self._totalComA123[0]**2 + 
+                                (turn_radius[Rr] - self._totalComA123[1])**2))
+
