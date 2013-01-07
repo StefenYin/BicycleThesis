@@ -124,6 +124,8 @@ class SteadyTurning(object):
         contact_position = [value.subs(self._parameters)
                             .subs(self._configuration) 
                             for value in self._contactPosition]
+        self._fn_dn_A1 = contact_position[2]
+        self._fn_dn_A2 = contact_position[3]
 
         Rr, Rf = self._turningRadiusSym
 
@@ -131,5 +133,5 @@ class SteadyTurning(object):
                                 contact_position[1] - contact_position[3]],
                                 self._turningRadiusSym)
 
-        self.turningRadiusRearGeo = turn_radius[Rr]
-        self.turningRadiusFrontGeo = turn_radius[Rf]
+        self._turningRadiusRearGeo = turn_radius[Rr]
+        self._turningRadiusFrontGeo = turn_radius[Rf]
