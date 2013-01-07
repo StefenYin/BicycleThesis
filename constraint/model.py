@@ -134,7 +134,6 @@ class BicycleModel(object):
         # g_3: direction along front wheel radius.
         # long_v: longitudinal direction of front wheel.
         # lateral_v: lateral direction of front wheel.
-
         g_3 =  (mec.express(A['3'], E) - mec.dot(E['2'], A['3'])*E['2']).normalize() 
         # OR g_3 = E['2'].cross(A['3']).cross(E['2']).normalize() 
         long_v = mec.cross (E['2'], A['3']).normalize()
@@ -152,7 +151,7 @@ class BicycleModel(object):
         # ce: steer axis point.
         # SAF: steer axis foot.
 
-        # rear
+        # Rear
         dn = mec.Point('dn')
         dn.set_vel(N, ua1 * A['1'] + ua2 * A['2']) 
         # OR dn.set_vel(N, ua1 * N['1'] + ua2 * N['2'])
@@ -264,6 +263,24 @@ class BicycleModel(object):
         self._Fr = fr
         self._Fr_star = frstar
         self._kdd = self._kane.kindiffdict()
+
+        # Setting another contact points for calculating turning radius:
+        # Turning radius: rear wheel: Rr, front wheel Rf;
+        # Contact points: rear contact: P; front contact: Q; Turning center: TC;
+        # Relative position: P_Q_A1, P_Q_A2.
+        Rr, Rf = sym.symbols('Rr Rf')
+        P = mec.Point('P')
+        TC = P.locatenew('TC', Rr*A['2'])
+        Q = TC.locatenew('Q', -Rf*lateral_v)
+        self._turningRadius = [Rr, Rf]
+
+        P_Q_A1 = Q.pos_from(P).dot(A['1'])
+        P_Q_A2 = Q.pos_from(P).dot(A['2'])
+        self._contact_posi_pq = [P_Q_A1, P_Q_A2]
+
+        fn_dn_A1 = fn.pos_from(dn).dot(A['1'])
+        fn_dn_A2 = fn.pos_from(dn).dot(A['2'])
+        self._contact_posi_dfn = [fn_dn_A1, fn_dn_A2]
 
 
     def mass_matrix_full(self):

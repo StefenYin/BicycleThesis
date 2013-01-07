@@ -23,10 +23,14 @@ class SteadyTurning(object):
         # Bicycle model: biModel
         # forceFull matrix
         # conForceNoncontri
+        # contact points relative position in a list, but from ways to obtain it.
         biModel = mo.BicycleModel()
 
         self._forceFull = biModel.forcing_full()
         self._contactforcesOrig = biModel.contact_forces()
+        self._contactPosition = (biModel._contact_posi_pq + 
+                                    biModel._contact_posi_dfn)
+        self._turningRadiusSym = biModel._turningRadius
 
         # States assignment
         # Parameters
@@ -50,6 +54,9 @@ class SteadyTurning(object):
         self._configuration = q_dict
         self._configurationDegree = q_dict_d
 
+        # Turning radius
+        self.turning_radius()
+
         # Dynamic equations
         # Nonholonomic equations
         dynamic_equ = st.forcing_dynamic_equations(self._forceFull, 
@@ -65,6 +72,7 @@ class SteadyTurning(object):
         dynamic_nonho_equ = st.dynamic_nonholonomic_equations(inde_expre_subs, 
                                                                 dynamic_equ)
         self._dynamicnonho = dynamic_nonho_equ
+
 
     def equi_cal(self):
         """Calculate equilibrium values in the specified steady turning.
@@ -89,6 +97,7 @@ class SteadyTurning(object):
 
         return self.equilibrium
 
+
     def contact_force(self):
         """Calculate the contact forces in the defined configuration and 
         equilibrium values. 
@@ -104,3 +113,23 @@ class SteadyTurning(object):
 
         contact_forces_value = sym.solve(contact_forces_st, self._contactforcesSym)
         self.contactForcesValue = contact_forces_value
+
+        return self.contactForcesValue
+
+
+    def turning_radius(self):
+        """Returns the turning radius of two wheels after defining a steady
+        turning configuration."""
+
+        contact_position = [value.subs(self._parameters)
+                            .subs(self._configuration) 
+                            for value in self._contactPosition]
+
+        Rr, Rf = self._turningRadiusSym
+
+        turn_radius = sym.solve([contact_position[0] - contact_position[2], 
+                                contact_position[1] - contact_position[3]],
+                                self._turningRadiusSym)
+
+        self.turningRadiusRearGeo = turn_radius[Rr]
+        self.turningRadiusFrontGeo = turn_radius[Rf]
