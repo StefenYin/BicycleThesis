@@ -30,7 +30,7 @@ Fx_r, Fy_r, Fx_f, Fy_f = biModel._auxiliaryForces
 
 bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
-para_dict = biModel.parameters_symbols(mp)
+para_dict = mo.strings2symbols(mp, go2type="orsymbols")
 
 # Steady turning configuration:
 # ud: {u1d: 0.0, u2d: 0.0, u3d: 0.0, u4d: 0.0, u5d: 0.0, u6d: 0.0}

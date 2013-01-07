@@ -21,7 +21,7 @@ forceFull = biModel.forcing_full()
 # Parameters
 bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
-para_dict = biModel.parameters_symbols(mp)
+para_dict = mo.strings2symbols(mp, go2type="orsymbols")
 
 # Test reference configuration
 # u2-leanrate, u3-pitchrate, u4-steerrate

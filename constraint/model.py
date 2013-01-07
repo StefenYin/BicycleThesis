@@ -293,40 +293,6 @@ class BicycleModel(object):
 
         return self.forcingLinB
 
-    def parameters_symbols(self, mooreParameters):
-        """Returns a dictionary of parameters whose keys are symbols instead of
-        strings in mooreParameters."""
-
-        mp = mooreParameters
-        self.parameters = {}
-
-        for key, value in mp.items():
-            self.parameters.update(dict(zip([sym.symbols(key)], [value])))
-
-        return self.parameters
-
-    def coordinates_dynamicsymbols(self, coordinates):
-        """Returns a dictionary of coordinates whose keys are dynamic symbols 
-        instead of strings of coordinates."""
-
-        self.coordinates = {}
-
-        for key, value in coordinates.items():
-            self.coordinates.update(dict(zip([mec.dynamicsymbols(key)], [value])))
-
-        return self.coordinates
-
-    def speeds_dynamicsymbols(self, speeds):
-        """Returns a dictionary of speeds whose keys are dynamic symbols 
-        instead of strings of speeds."""
-
-        self.speeds = {}
-
-        for key, value in speeds.items():
-            self.speeds.update(dict(zip([mec.dynamicsymbols(key)], [value])))
-
-        return self.speeds
-
     def auxiliary_speeds_zero(self):
         """Returns a dictionary of zero auxiliary speeds."""
 
@@ -357,3 +323,39 @@ class BicycleModel(object):
                             lambda w: factor_terms(signsimp(w))).subs(self._kdd)
 
         return self.conForceNoncontri
+
+def strings2symbols(strings, go2type = None):
+    """Returns a dictionary with keys being symbols instead of strings.
+    Symbols here can be ordinary symbols or dynamic symbols.
+
+    Parameter
+    ---------
+    strings: a dictionary
+        A dictionary with keys being strings.
+    go2type: string
+        A type of keys of the dictionary to be transfered into.
+        Two options only: "orsymbols" for ordinary symbols, 
+                          "dysymbols" for dynamic symbols.
+
+    Return
+    ------
+    symbols: a dictionay
+        A dictionary with keys being symbols.
+
+    """
+
+    symbols = {}
+
+    if go2type is None:
+        raise TypeError("The type of keys in the dictionary to be transfered "
+                        "into must supply")
+
+    elif go2type is "orsymbols":
+        for key, value in strings.items():
+            symbols.update(dict(zip([sym.symbols(key)], [value])))
+
+    elif go2type is "dysymbols":
+        for key, value in strings.items():
+            symbols.update(dict(zip([mec.dynamicsymbols(key)], [value])))
+
+    return symbols

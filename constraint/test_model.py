@@ -21,7 +21,7 @@ mmFull = biModel.mass_matrix_full()
 
 bp = bi.benchmark_parameters()
 mp = bi.benchmark_to_moore(bp)
-para_dict = biModel.parameters_symbols(mp)
+para_dict = mo.strings2symbols(mp, go2type="orsymbols")
 
 ua_dict = biModel.auxiliary_speeds_zero()
 
@@ -41,8 +41,8 @@ basu_output = bi.basu_table_one_output()
 stefen_input = bi.basu_to_stefen_input(basu_input, mp['rr'], bp['lambda'])
 stefen_output = bi.basu_to_stefen_output(basu_output)
 
-input_states_dict = biModel.coordinates_dynamicsymbols(stefen_input) 
-output_dict = biModel.speeds_dynamicsymbols(stefen_output)
+input_states_dict = mo.strings2symbols(stefen_input, go2type="dysymbols") 
+output_dict = mo.strings2symbols(stefen_output, go2type="dysymbols")
 
 mass_full_nonlin = mmFull.subs(
                                 ua_dict).subs(
