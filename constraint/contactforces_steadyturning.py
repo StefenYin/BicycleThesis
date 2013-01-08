@@ -73,7 +73,7 @@ class SteadyTurning(object):
         self._configuration = q_dict
         self._configurationDegree = q_dict_d
 
-        # Total center of mass
+        # Total center of mass(including relative position of fn to dn)
         # Turning radius
         self.total_com()
         self.turning_radius()
@@ -94,6 +94,8 @@ class SteadyTurning(object):
                                                                 dynamic_equ)
         self._dynamicnonho = dynamic_nonho_equ
 
+        # Equilibrium values
+        self.equi_cal()
 
     def equi_cal(self):
         """Calculate equilibrium values in the specified steady turning.
@@ -101,22 +103,33 @@ class SteadyTurning(object):
 
         # calculation orders: u5_value, T4_value, u1_value, u6_value
         # Here, should consider more condition, but only choose the negative value
-        equi = self._equilibriumSym
+        u1, u5, u6, T4 = self._equilibriumSym
 
-        u5_value = sym.solve(self._dynamicnonho[0], equi[1])[0]
+        try:
+            u5_value = sym.solve(self._dynamicnonho[0], u5)[0]
+        except:
+            raise ValueError("Oops! Rear wheel rate in configuration {0} cannot be \
+solved. Please select valid configuration according to the plot from <General \
+steady turning of a benchmark bicycle model> by Luke. One way you can check \
+what the equilibrium values will look like is to see the dynamic_nonho_equ by \
+removing self.equi_cal() in Class and running again to see the \
+self._dynamicnonho. Good luck!".format(self._configuration))
 
-        u_others_dict = {equi[1]: u5_value}
+        if complex(u5_value).real == 0.:
+            raise ValueError("Oops! The steady turning in your configuration \
+{0} is Infeasible. Please try another valid according to the plot from <General \
+steady turning of a benchmark bicycle model> by Luke.".format(self._configuration))
 
-        T4_value = sym.solve(self._dynamicnonho[1], equi[3])[0].subs(u_others_dict)
+        u_others_dict = {u5: u5_value}
+
+        T4_value = sym.solve(self._dynamicnonho[1], T4)[0].subs(u_others_dict)
 
         u1_value = self._nonhoSubs[0].subs(u_others_dict)
         u6_value = self._nonhoSubs[2].subs(u_others_dict)
 
-        u_others_dict.update(dict(zip(equi[:1] + equi[2:], 
-                                [u1_value, u6_value, T4_value])))
+        u_others_dict.update(dict(zip([u1, u6, T4], 
+                                      [u1_value, u6_value, T4_value])))
         self.equilibrium = u_others_dict
-
-        return self.equilibrium
 
 
     def contact_force(self):
