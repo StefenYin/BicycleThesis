@@ -176,9 +176,13 @@ class SteadyTurning(object):
         turn_radius = sym.solve([contact_position[0] - contact_position[2], 
                                 contact_position[1] - contact_position[3]],
                                 self._turningRadiusSym)
-
-        self._turningRadiusRearGeo = turn_radius[Rr]
-        self._turningRadiusFrontGeo = turn_radius[Rf]
-        self._turningRadiusCom = sqrt(float(self._totalComA123[0]**2 + 
-                                (turn_radius[Rr] - self._totalComA123[1])**2))
-
+        
+        if turn_radius == []:
+            raise NotImplementedError("It seems the configuration {0} that you \
+are building is not going to generate a steady turning. Maybe you need to try \
+another valid configuration.".format(self._configuration))
+        else:
+            self._turningRadiusRearGeo = turn_radius[Rr]
+            self._turningRadiusFrontGeo = turn_radius[Rf]
+            self._turningRadiusCom = sqrt(float(self._totalComA123[0]**2 + 
+                                    (turn_radius[Rr] - self._totalComA123[1])**2))
