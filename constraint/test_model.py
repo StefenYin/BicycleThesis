@@ -5,25 +5,24 @@ test_model module:
 3, linearized with benchmark.
 """
 
-import pdb
-
-import bicycle as bi
-import model as mo
-
+from mo import (BicycleModel, strings2symbols)
+from bicycle import (benchmark_parameters, benchmark_to_moore,
+                    basu_table_one_input, basu_table_one_output,
+                    basu_to_stefen_input, basu_to_stefen_output
+                    )
 
 # Call Class BicycleModel: biModel
 # forcing_full, mass_matrix_full, para_dict, ua_dict
 # Go to parameters
-biModel = mo.BicycleModel()
+biModel = BicycleModel()
 
 forceFull = biModel.forcing_full()
 mmFull = biModel.mass_matrix_full()
 
-bp = bi.benchmark_parameters()
-mp = bi.benchmark_to_moore(bp)
-para_dict = mo.strings2symbols(mp, go2type="orsymbols")
-
-ua_dict = mo.zeros_dict(biModel._auxiliarySpeeds)
+bp = benchmark_parameters()
+mp = benchmark_to_moore(bp)
+para_dict = strings2symbols(mp, go2type="orsymbols")
+ua_dict = strings2symbols(biModel._auxiliarySpeeds, go2type="dysymbols")
 
 # Basu-Mandal for nonlinear model
 # Input forces or torques: T4 to be zero
@@ -36,13 +35,13 @@ steerTorque = {T4: 0.}
 
 deri = {'Derivative(0, t)': 0.}
 
-basu_input = bi.basu_table_one_input()
-basu_output = bi.basu_table_one_output()
-stefen_input = bi.basu_to_stefen_input(basu_input, mp['rr'], bp['lambda'])
-stefen_output = bi.basu_to_stefen_output(basu_output)
+basu_input = basu_table_one_input()
+basu_output = basu_table_one_output()
+stefen_input = basu_to_stefen_input(basu_input, mp['rr'], bp['lambda'])
+stefen_output = basu_to_stefen_output(basu_output)
 
-input_states_dict = mo.strings2symbols(stefen_input, go2type="dysymbols") 
-output_dict = mo.strings2symbols(stefen_output, go2type="dysymbols")
+input_states_dict = strings2symbols(stefen_input, go2type="dysymbols") 
+output_dict = strings2symbols(stefen_output, go2type="dysymbols")
 
 mass_full_nonlin = mmFull.subs(
                                 ua_dict).subs(
