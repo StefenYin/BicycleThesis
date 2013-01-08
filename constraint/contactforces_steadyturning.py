@@ -1,7 +1,9 @@
 """
 contactforces_steadyturning module:
-1, building bicycle model and states, input parameters
-2, building a class of SteadyTurning, primarily for contact forces.
+1, Configuration & Parameters -> turning radius, total center of mass, relative
+   position;
+2, & dynamic equations, nonholonomic equations -> equilibrium values, 
+   contact forces.
 """
 
 import model as mo
@@ -61,21 +63,20 @@ class SteadyTurning(object):
         self._parameters = mo.strings2symbols(mp, go2type="orsymbols")
 
         # Steady turning configuration:
+        # Configuration: e.g. lean = pi/8;  steer = pi/4
         self._ud0s = mo.zeros_dict(biModel._speedsDerivative)
         self._u0s = mo.zeros_dict([u2, u3, u4])
-
         self._equilibriumSym = [u1, u5, u6, T4]
         self._contactforcesSym = biModel._auxiliaryForces
 
-        # Configuration: e.g. lean = pi/8;  steer = pi/4
         q_dict, q_dict_d = st.configuration(lean, steer, mp)
         self._configuration = q_dict
         self._configurationDegree = q_dict_d
 
+        # Total center of mass
         # Turning radius
         self.total_com()
         self.turning_radius()
-
 
         # Dynamic equations
         # Nonholonomic equations
