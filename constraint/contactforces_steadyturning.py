@@ -178,9 +178,10 @@ class SteadyTurning(object):
                                 self._turningRadiusSym)
         
         if turn_radius == []:
-            raise NotImplementedError("It seems the configuration {0} that you \
-are building is not going to generate a steady turning. Maybe you need to try \
-another valid configuration.".format(self._configuration))
+            print ("It seems the configuration {0} that you are building is \
+not going to generate a steady turning. Maybe you need to try another valid \
+configuration.".format(self._configuration))
+            pass
         else:
             self._turningRadiusRearGeo = turn_radius[Rr]
             self._turningRadiusFrontGeo = turn_radius[Rf]
