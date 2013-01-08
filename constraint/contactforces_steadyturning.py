@@ -18,8 +18,19 @@ class SteadyTurning(object):
     """Steady turning class for equalibrium values and contact forces."""
 
 
-    def __init__(self, lean, steer):
-        """Given lean and steer angles for a steady-turning configuration."""
+    def __init__(self, lean, steer, bicycleParameters = None):
+        """Given lean and steer angles for a steady-turning configuration.
+
+        Parameter
+        ---------
+        lean, steer: float
+            Angles for defining a steady turning configuration.
+        bicycleParameters: a dictionary
+            The parameters is the dictionary is expressed in Moore set, not 
+            benchmark set.
+            Default parameters are benchmark parameters.
+
+        """
 
         # Bicycle model: biModel
         # forceFull matrix
@@ -42,8 +53,11 @@ class SteadyTurning(object):
         u2, u4, u5 = biModel._speedsInde
         T4 = biModel._inputForces[0]
 
-        bp = bi.benchmark_parameters()
-        mp = bi.benchmark_to_moore(bp)
+        if bicycleParameters is None:
+            bp = bi.benchmark_parameters()
+            mp = bi.benchmark_to_moore(bp)
+        else:
+            mp = bicycleParameters
         self._parameters = mo.strings2symbols(mp, go2type="orsymbols")
 
         # Steady turning configuration:
