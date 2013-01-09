@@ -53,6 +53,7 @@ class SteadyTurning(object):
         self._turningRadiusSym = biModel._turningRadiusSym
         self._bodies_dn_A = biModel._bodies_dn_A
         self._massSym = biModel._massSym
+        self._contactforcesSym = biModel._auxiliaryForces
 
         # States assignment
         # Parameters
@@ -72,7 +73,6 @@ class SteadyTurning(object):
         self._ud0s = mo.zeros_dict(biModel._speedsDerivative)
         self._u0s = mo.zeros_dict([u2, u3, u4])
         self._equilibriumSym = [u1, u5, u6, T4]
-        self._contactforcesSym = biModel._auxiliaryForces
 
         q_dict, q_dict_d = st.configuration(lean, steer, mp)
         self._configuration = q_dict
@@ -113,21 +113,21 @@ class SteadyTurning(object):
         try:
             u5_value = sym.solve(self._dynamicnonho[0], u5)[0]
         except:
-            raise ValueError("\nOops! Rear wheel rate in configuration {0} cannot be \
+            raise ValueError("Oops! Rear wheel rate in configuration {0} cannot be \
 solved. Please select valid configuration according to the plot from <General \
 steady turning of a benchmark bicycle model> by Luke. One way you can check \
 what the equilibrium values will look like is to see the dynamic_nonho_equ by \
 removing self.equi_cal() in Class and running again to see the \
-self._dynamicnonho. Good luck!".format(self._configuration))
+self._dynamicnonho. Good luck!\n".format(self._configuration))
 
         if complex(u5_value).real == 0.:
-            print ("\nOops! The steady turning in your configuration {0} seems \
+            print ("Oops! The steady turning in your configuration {0} seems \
 Infeasible since no real value appears in rear wheel rate. Please check the \
 _equilibrium_u values and try another valid one according to the plot from \
-<General steady turning of a benchmark bicycle model> by Luke.".format(self._configuration))
+<General steady turning of a benchmark bicycle model> by Luke.\n".format(self._configuration))
         else:
-            print ("\nIt passed the check of equilibrium calculation and \
-already solved the equilibrium values, but it is still being checked...")
+            print ("It passed the check of equilibrium calculation and \
+already solved the equilibrium values, but it is still being checked...\n")
 
         u_others_dict = {u5: u5_value}
 
@@ -201,14 +201,14 @@ already solved the equilibrium values, but it is still being checked...")
                                 self._turningRadiusSym)
         
         if turn_radius == []:
-            print ("\nIt seems the configuration {0} that you are building is \
+            print ("It seems the configuration {0} that you are building is \
 not going to generate a steady turning. Maybe you need to try another valid \
-configuration.".format(self._configuration))
+configuration.\n".format(self._configuration))
             pass
         else:
-            print ("\nIt seems the configuration {0} that you are building is \
+            print ("It seems the configuration {0} that you are building is \
 right. At lease it has turning radius at this point, but it is still being \
-checked...".format(self._configuration))
+checked...\n".format(self._configuration))
 
             self._turningRadiusRearGeo = turn_radius[Rr]
             self._turningRadiusFrontGeo = turn_radius[Rf]
@@ -235,10 +235,10 @@ checked...".format(self._configuration))
         ei_signs = [eigs.real <= 0. for eigs in self._eigs]
 
         if False not in ei_signs:
-            print ("\nIt passed the eigenvalues checking. You can see the \
+            print ("It passed the eigenvalues checking. You can see the \
 eigenvalues in ._eigs. Overall, the configuration {0} seems already generates \
-a steady turning.".format(self._configuration))
+a steady turning.\n".format(self._configuration))
         else:
-            print ("\nSome eigenvalues are positive which means the steady \
+            print ("Some eigenvalues are positive which means the steady \
 turning in the configuration {0} is not stable or kinematically infeasible. \
-Please check the eigenvalue and try another configuration.".format(self._configuration))
+Please check the eigenvalue and try another configuration.\n".format(self._configuration))
