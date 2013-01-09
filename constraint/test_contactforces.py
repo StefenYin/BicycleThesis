@@ -47,8 +47,8 @@ def contact_forces_test(lean, steer):
     Fy_r_mod = contact_forces_model[Fy_r]
     Fy_f_mod = contact_forces_model[Fy_f]
 
-    contact_forces_dict = {'geo (rearxyz, frontxyz)': (Fy_r_geo, Fy_f_geo),
-                           'mod (rearxyz, frontxyz)': (Fy_r_mod, Fy_f_mod)}
+    contact_forces_dict = {'geo [rearxyz, frontxyz]': [(Fy_r_geo), (Fy_f_geo)],
+                           'mod [rearxyz, frontxyz]': [(Fy_r_mod), (Fy_f_mod)]}
     # compare
     #assert (Fy_r_geo == Fy_r_mod)
     #assert (Fy_f_geo == Fy_f_mod)
