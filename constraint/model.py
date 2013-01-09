@@ -53,10 +53,10 @@ class BicycleModel(object):
         # Axiliary speeds at contact points:
         # Rear wheel: ua1, ua2
         # Front wheel: ua4, ua5
-        ua1, ua2 = mec.dynamicsymbols ('ua1 ua2')
-        ua4, ua5 = mec.dynamicsymbols ('ua4 ua5')
+        ua1, ua2, ua3 = mec.dynamicsymbols ('ua1 ua2 ua3')
+        ua4, ua5, ua6 = mec.dynamicsymbols ('ua4 ua5 ua6')
 
-        self._auxiliarySpeeds = [ua1, ua2, ua4, ua5]
+        self._auxiliarySpeeds = [ua1, ua2, ua3, ua4, ua5, ua6]
 
         # Reference Frames:
         # Newtonian Frame: N
@@ -154,7 +154,7 @@ class BicycleModel(object):
 
         # Rear
         dn = mec.Point('dn')
-        dn.set_vel(N, ua1 * A['1'] + ua2 * A['2']) 
+        dn.set_vel(N, ua1 * A['1'] + ua2 * A['2'] + ua3 * A['3']) 
         # OR dn.set_vel(N, ua1 * N['1'] + ua2 * N['2'])
 
         do = dn.locatenew('do', -rr * B['3'])
@@ -174,7 +174,7 @@ class BicycleModel(object):
 
         # Front
         fn = mec.Point('fn')
-        fn.set_vel(N, ua4 * long_v + ua5 * lateral_v)
+        fn.set_vel(N, ua4 * long_v + ua5 * lateral_v + ua6 * A['3'])
         # OR fn.set_vel(N, ua4 * N['1'] + ua5 * N['2'])
 
         fo = fn.locatenew('fo', -rf * g_3)
@@ -225,13 +225,13 @@ class BicycleModel(object):
         # Fx_f, Fy_f: front wheel contact forces.
         # Fco, Fdo, Feo, Ffo: gravity of four rigid bodies of bicycle.
         T4 = mec.dynamicsymbols('T4')
-        Fx_r, Fy_r, Fx_f, Fy_f = mec.dynamicsymbols('Fx_r Fy_r Fx_f Fy_f')
+        Fx_r, Fy_r, Fz_r, Fx_f, Fy_f, Fz_f= mec.dynamicsymbols('Fx_r Fy_r Fz_r Fx_f Fy_f Fz_f')
 
         Tc = (C, - T4 * C['3']) #back steer torque to rear frame
         Te = (E, T4 * C['3']) #steer torque to front frame
 
-        F_r = (dn, Fx_r * A['1'] + Fy_r * A['2'])
-        F_f = (fn, Fx_f * long_v + Fy_f * lateral_v)
+        F_r = (dn, Fx_r * A['1'] + Fy_r * A['2'] + Fz_r * A['3'])
+        F_f = (fn, Fx_f * long_v + Fy_f * lateral_v + Fz_f * A['3'])
         # OR F_r = (dn, Fx_r * N['1'] + Fy_r * N['2'])
         # OR F_f = (fn, Fx_f * N['1'] + Fy_f * N['2'])
 
@@ -243,7 +243,7 @@ class BicycleModel(object):
         forceList = [Fco, Fdo, Feo, Ffo, F_r, F_f, Tc, Te]
 
         self._inputForces = [T4]
-        self._auxiliaryForces = [Fx_r, Fy_r, Fx_f, Fy_f]
+        self._auxiliaryForces = [Fx_r, Fy_r, Fz_r, Fx_f, Fy_f, Fz_f]
 
         # Kinematical Differential Equations:
         kinematical = [q1d - u1,
