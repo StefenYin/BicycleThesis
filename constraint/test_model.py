@@ -5,7 +5,7 @@ test_model module:
 3, linearized with benchmark.
 """
 
-from mo import (BicycleModel, strings2symbols)
+from model import (BicycleModel, strings2symbols, zeros_dict)
 from bicycle import (benchmark_parameters, benchmark_to_moore,
                     basu_table_one_input, basu_table_one_output,
                     basu_to_stefen_input, basu_to_stefen_output
@@ -22,7 +22,7 @@ mmFull = biModel.mass_matrix_full()
 bp = benchmark_parameters()
 mp = benchmark_to_moore(bp)
 para_dict = strings2symbols(mp, go2type="orsymbols")
-ua_dict = strings2symbols(biModel._auxiliarySpeeds, go2type="dysymbols")
+ua_dict = zeros_dict(biModel._auxiliarySpeeds)
 
 # Basu-Mandal for nonlinear model
 # Input forces or torques: T4 to be zero
