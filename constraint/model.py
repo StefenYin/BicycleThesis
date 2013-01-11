@@ -136,9 +136,9 @@ class BicycleModel(object):
         # long_v: longitudinal direction of front wheel.
         # lateral_v: lateral direction of front wheel.
         g_3 =  (mec.express(A['3'], E) - mec.dot(E['2'], A['3'])*E['2']).normalize() 
-        # OR g_3 = E['2'].cross(A['3']).cross(E['2']).normalize() 
-        long_v = mec.cross (E['2'], A['3']).normalize()
-        lateral_v = mec.cross (A['3'], long_v).normalize() 
+        # Or g_3 = E['2'].cross(A['3']).cross(E['2']).normalize() 
+        long_v = mec.cross(E['2'], g_3).normalize()
+        lateral_v = mec.cross(A['3'], long_v).normalize() 
 
         # Points and velocities:
         # dn: rear wheel contact point.
