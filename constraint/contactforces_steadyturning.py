@@ -226,8 +226,7 @@ checked...\n".format(self._configuration))
         self._equilibrium_qu.update(self._equilibrium_u)
 
         mass = self._mmFull.subs(self._parameters).subs(self._equilibrium_qu)
-        lin_forcing_a = self._forcingLinA.subs(self._parameters)
-                                         .subs(self._equilibrium_qu)
+        lin_forcing_a = self._forcingLinA.subs(self._parameters).subs(self._equilibrium_qu)
         self._AmatFull = mass.inv() * lin_forcing_a
         self._Amat = self._AmatFull.extract([4,5,6], [3,4,5])
         eig1, eig2, eig3 = self._Amat.eigenvals(rational = False)
