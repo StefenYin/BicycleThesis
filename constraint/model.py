@@ -138,7 +138,8 @@ class BicycleModel(object):
         g_3 =  (mec.express(A['3'], E) - mec.dot(E['2'], A['3'])*E['2']).normalize() 
         # Or g_3 = E['2'].cross(A['3']).cross(E['2']).normalize() 
         long_v = mec.cross(E['2'], g_3).normalize()
-        lateral_v = mec.cross(A['3'], long_v).normalize() 
+        # E.y ^ g_3 # ^ -> cross,  & -> dot
+        lateral_v = mec.cross(A['3'], long_v)
 
         # Points and velocities:
         # dn: rear wheel contact point.
