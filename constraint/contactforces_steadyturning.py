@@ -43,6 +43,7 @@ class SteadyTurning(object):
         # contact points relative position in a list, but from ways to obtain it
         # individual centers of mass of four rigid bodies
         biModel = mo.BicycleModel()
+        self._biModel = biModel
 
         self._mmFull = biModel.mass_matrix_full()
         self._forcingLinA = biModel.linearized_a()
@@ -151,7 +152,7 @@ already solved the equilibrium values, but it is still being checked...\n")
 
         contact_forces_st = [value.subs(self._ud0s).subs(self._u0s)
                                 .subs(self._parameters)
-                                .subs(self._configuration).subs(equilibrium) 
+                                .subs(self._configuration).subs(equilibrium).doit() 
                                 for value in self._contactforcesOrig]
         self.contactForcesExpre = contact_forces_st
 
@@ -225,7 +226,8 @@ checked...\n".format(self._configuration))
         self._equilibrium_qu.update(self._equilibrium_u)
 
         mass = self._mmFull.subs(self._parameters).subs(self._equilibrium_qu)
-        lin_forcing_a = self._forcingLinA.subs(self._parameters).subs(self._equilibrium_qu)
+        lin_forcing_a = self._forcingLinA.subs(self._parameters)
+                                         .subs(self._equilibrium_qu)
         self._AmatFull = mass.inv() * lin_forcing_a
         self._Amat = self._AmatFull.extract([4,5,6], [3,4,5])
         eig1, eig2, eig3 = self._Amat.eigenvals(rational = False)
