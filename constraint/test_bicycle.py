@@ -4,10 +4,10 @@ test_bicycle module:
    Jason's DynamicistToolKit package.
 """
 
-from bicycle import (benchmark_parameters, benchmark_to_moore
+from bicycle import (benchmark_parameters, benchmark_to_moore,
                     lambda_from_132, pitch_from_roll_and_steer,
-                    basu_table_one_input, basu_table_one_output,
-                    basu_table_one_input, basu_table_one_output
+                    basu_table_one_input, basu_to_stefen_input,
+                    basu_table_one_output, basu_to_stefen_output
                     )
 
 from numpy import pi
