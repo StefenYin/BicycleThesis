@@ -1,7 +1,10 @@
 """
 test_contactforces module:
 1, test contact forces in a given steady turning condition.
-   here, calculate the contact forces directly from geometry.
+   one is derived from geometry of steady turning,
+   the other is from KaneMethod in mech.
+2, Actually, comparison should happen to between the manual derivation and 
+   KaneMethod class, along with same defined variables.
 """
 
 from contactforces_steadyturning import SteadyTurning
