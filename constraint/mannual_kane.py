@@ -556,45 +556,45 @@ def derivs(y, t):
 # initial condition:
 #                  [q1,   q2,   q4,   q3,   u2,   u4,   u5,   u1,   u3,   u6]
 #   reference      [0.,   0.,   0.,   lam,  0.,   0.,   v/rr, 0.,   0.,   v/rf]
-q1 = 0.; q2 = 0.; q4 = 0.
-q3 = pitch_from_roll_and_steer(q2, q4, mp['rf'], mp['rr'], mp['d1'], mp['d2'],
+q1_ref = 0.; q2_ref = 0.; q4_ref = 0.
+q3_ref = pitch_from_roll_and_steer(q2, q4, mp['rf'], mp['rr'], mp['d1'], mp['d2'],
                                 mp['d3'])
-q_ini = [q1, q2, q4, q3]
+q_ini_ref = [q1_ref, q2_ref, q4_ref, q3_ref]
 
 v = 5.0 # m/s
-u2 = 0.; u4 = 0.; u5 = v/mp['rr']
-u1 = 0.; u3 = 0.; u6 = v/mp['rf']
-u_ini = [u2, u4, u5, u1, u3, u6]
+u2_ref = 0.; u4_ref = 0.; u5_ref = v/mp['rr']
+u1_ref = 0.; u3_ref = 0.; u6_ref = v/mp['rf']
+u_ini_ref = [u2_ref, u4_ref, u5_ref, u1_ref, u3_ref, u6_ref]
 
-y0 = np.array(q_ini + u_ini)
-t = np.linspace(0, 10, 1000)
+y0_ref = np.array(q_ini_ref + u_ini_ref)
+t = np.linspace(0, 5, 1000)
 
 # Intgration: y: (10, 1)
 # reorder the y to correspond [q1, q2, q3, q4, u1, u2, u3, u4, u5, u6]
 #                  instead of [q1, q2, q4, q3, u2, u4, u5, u1, u3, u6]
-y = odeint(derivs, y0, t)
-y_re = np.hstack((y[:, :2], y[:,3:4], y[:,2:3], 
-                  y[:,5:6], y[:,7:9], y[:,4:5], y[:,6:7], y[:,9:]))
+y_ref = odeint(derivs, y0_ref, t)
+y_ref_reorder = np.hstack((y_ref[:, :2], y_ref[:,3:4], y_ref[:,2:3], 
+                  y_ref[:,5:6], y_ref[:,7:9], y_ref[:,4:5], y_ref[:,6:7], 
+                  y_ref[:,9:]))
+
 # Plotting
 from matplotlib.pyplot import (figure, plot, legend, xlabel, ylabel, show,
                                 title)
 for i in range(len(q)):
     figure(1)
-    plot(t, y_re[:, i], label='q'+str(i+1))
+    plot(t, y_ref_reorder[:, i], label='q'+str(i+1))
 for j in range(len(u)):
     figure(2)
-    plot(t, y_re[:, j+len(q)], label='u'+str(j+1))
+    plot(t, y_ref_reorder[:, j+len(q)], label='u'+str(j+1))
 
 figure(1)
-title('Angle performance with 5 m/s forward speed\n'\
-      'in reference configuration')
+title('Angle performance in reference configuration')
 legend(loc=0)
 xlabel('Time (s)')
 ylabel('Angle (rad)')
 
 figure(2)
-title('Rate performance with 5 m/s forward speed\n'\
-      'in reference configuration')
+title('Rate performance in reference configuration')
 legend(loc=0)
 xlabel('Time (s)')
 ylabel('Rate (rad/s)')
