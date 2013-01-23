@@ -55,8 +55,12 @@ class BicycleModel(object):
         # Front wheel: ua4, ua5
         ua1, ua2, ua3 = mec.dynamicsymbols ('ua1 ua2 ua3')
         ua4, ua5, ua6 = mec.dynamicsymbols ('ua4 ua5 ua6')
+        ua1d, ua2d, ua3d = mec.dynamicsymbols ('ua1 ua2 ua3',1)
+        ua4d, ua5d, ua6d = mec.dynamicsymbols ('ua4 ua5 ua6',1)
 
         self._auxiliarySpeeds = [ua1, ua2, ua3, ua4, ua5, ua6]
+        self._auxiliarySpeedsDerivative = [ua1d, ua2d, ua3d, ua4d, ua5d, ua6d]
+        ua_zero = {uai: 0 for uai in self._auxiliarySpeeds}
 
         # Reference Frames:
         # Newtonian Frame: N
@@ -156,37 +160,33 @@ class BicycleModel(object):
         # Rear
         dn = mec.Point('dn')
         dn.set_vel(N, ua1 * A['1'] + ua2 * A['2'] + ua3 * A['3']) 
-        # OR dn.set_vel(N, ua1 * N['1'] + ua2 * N['2'])
 
         do = dn.locatenew('do', -rr * B['3'])
-        # OR do = dn.locatenew('do', -rtr * A['3'] - rr * B['3']) 
         do.v2pt_theory(dn, N, D)
-        do.set_acc(N, do.vel(N).diff(t, B) + mec.cross(B.ang_vel_in(N), do.vel(N))) 
+        do.set_acc(N, do.vel(N).subs(ua_zero).diff(t, C) + 
+           mec.cross(C.ang_vel_in(N), do.vel(N).subs(ua_zero)))
 
         co = mec.Point('co')
         co.set_pos(do, l1 * C['1'] + l2 * C['3'])
         co.v2pt_theory(do, N, C)
-        co.a2pt_theory(do, N, C)
-
-        ce = mec.Point('ce')
-        ce.set_pos(do, d1 * C['1'])
-        ce.v2pt_theory(do, N, C)
-        ce.a2pt_theory(do, N, C)
+        co.set_acc(N, co.vel(N).subs(ua_zero).diff(t, C) + 
+           mec.cross(C.ang_vel_in(N), co.vel(N).subs(ua_zero)))
 
         # Front
         fn = mec.Point('fn')
         fn.set_vel(N, ua4 * long_v + ua5 * lateral_v + ua6 * A['3'])
-        # OR fn.set_vel(N, ua4 * N['1'] + ua5 * N['2'])
 
         fo = fn.locatenew('fo', -rf * g_3)
         # OR fo = fn.locatenew('fo', -ftr * A['3'] - rf * g_3) 
         fo.v2pt_theory(fn, N, F)
-        fo.set_acc(N, fo.vel(N).diff(t, E) + mec.cross(E.ang_vel_in(N), fo.vel(N)))
+        fo.set_acc(N, fo.vel(N).subs(ua_zero).diff(t, E) + 
+           mec.cross(E.ang_vel_in(N), fo.vel(N).subs(ua_zero)))
 
         eo = mec.Point('eo')
         eo.set_pos(fo, l3 * E['1'] + l4 * E['3'])
         eo.v2pt_theory(fo, N, E)
-        eo.a2pt_theory(fo, N, E)
+        eo.set_acc(N, eo.vel(N).subs(ua_zero).diff(t, E) + 
+           mec.cross(E.ang_vel_in(N), eo.vel(N).subs(ua_zero)))
 
         SAF = do.locatenew('SAF', d1 * C['1'] + d2 * E['3'])
         SAF.set_pos(fo, -d3 * E['1'])
