@@ -557,8 +557,8 @@ def derivs(y, t):
 #                  [q1,   q2,   q4,   q3,   u2,   u4,   u5,   u1,   u3,   u6]
 #   reference      [0.,   0.,   0.,   lam,  0.,   0.,   v/rr, 0.,   0.,   v/rf]
 q1_ref = 0.; q2_ref = 0.; q4_ref = 0.
-q3_ref = pitch_from_roll_and_steer(q2, q4, mp['rf'], mp['rr'], mp['d1'], mp['d2'],
-                                mp['d3'])
+q3_ref = pitch_from_roll_and_steer(q2_ref, q4_ref, mp['rf'], mp['rr'], 
+                                   mp['d1'], mp['d2'], mp['d3'])
 q_ini_ref = [q1_ref, q2_ref, q4_ref, q3_ref]
 
 v = 5.0 # m/s
