@@ -12,6 +12,49 @@ model and equations of contact forces.
 Here, the equations will be calculated from KaneMethod class all from model.py 
 module.
 """
+from matplotlib.pyplot import (figure, plot, legend, xlabel, ylabel, show,
+                                title)
+
+def plotting(q, u, y_ode, note, show=True):
+    """
+    Parameter
+    ---------
+    q: list
+       a list of states angles.
+    u: list
+       a list of states rate. 
+    y_ode: an array, time by states
+       The result from odeint calculation. 
+       Rows are time vector, cols are states.
+    note: string
+       A title description of a plot.
+    """
+
+    for i in range(len(q)):
+        figure(1)
+        plot(t, y_ode[:, i], label='q'+str(i+1))
+    for j in range(len(u)):
+        figure(2)
+        plot(t, y_ode[:, j+len(q)], label='u'+str(j+1))
+
+    figure(1)
+    title('Angle performance in %s configuration'%note)
+    legend(loc=0)
+    xlabel('Time (s)')
+    ylabel('Angle (rad)')
+        
+    figure(2)
+    title('Rate performance in %s configuration'%note)
+    legend(loc=0)
+    xlabel('Time (s)')
+    ylabel('Rate (rad/s)')
+
+    if show:
+        figure(1).show()
+        figure(2).show()
+
+    return figure(1), figure(2)
+
 
 from scipy.integrate import odeint
 from sympy import (Dummy, lambdify, symbols, zeros)
@@ -86,26 +129,4 @@ y_re = hstack((y[:, :2], y[:,3:4], y[:,2:3],
                y[:,5:6], y[:,7:9], y[:,4:5], y[:,6:7], y[:,9:]))
 
 # Plotting
-from matplotlib.pyplot import (figure, plot, legend, xlabel, ylabel, show,
-                                title)
-for i in range(len(q)):
-    figure(1)
-    plot(t, y_re[:, i], label='q'+str(i+1))
-for j in range(len(u)):
-    figure(2)
-    plot(t, y_re[:, j+len(q)], label='u'+str(j+1))
-
-figure(1)
-title('Angle performance with 5 m/s forward speed\n'\
-      'in reference configuration')
-legend(loc=0)
-xlabel('Time (s)')
-ylabel('Angle (rad)')
-
-figure(2)
-title('Rate performance with 5 m/s forward speed\n'\
-      'in reference configuration')
-legend(loc=0)
-xlabel('Time (s)')
-ylabel('Rate (rad/s)')
-show()
+figure1, figure2 = plotting(q, u, y_re, 'Reference')
