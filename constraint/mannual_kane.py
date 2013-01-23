@@ -430,6 +430,7 @@ B58 = B5_num.col_join(B8_num)
 output_cal = -B47.inv() * B58
 """
 
+"""
 # Steady turning
 t5 = time()
 # Configuration: lean, steer, pitch
@@ -485,5 +486,119 @@ force_num_st = sym.solve(forces_exp_st, auxforces)
 t7 = time()
 print ("Calculating the contact forces for two wheels, taking {0} s. \
 ".format(t7-t6))
-
+"""
 # writing_dyequ(forces)
+
+t8 = time()
+# Mass and forcing
+# qd_kd, f_a, dynamic  differential about [qd_i, qd_de, ud_i, ud_de]
+# qd_kd: M1[qd, ud] = M2
+# f_a: M3[qd, ud] = M4
+# dynamic: M5[qd, ud] = M6
+qud = qd+ud
+M1 = sym.zeros(4, len(qud))
+M2 = sym.zeros(4, 1)
+for i, equi in enumerate(kindiffs):
+    for j, qudi in enumerate(qud):
+        M1[i, j] = equi.diff(qudi)
+    M2[i] = -equi.subs(ud_zero).subs(qd_zero)
+
+M3 = sym.zeros(3, len(qud))
+M4 = sym.zeros(3, 1)
+for i, equi in enumerate(f_a):
+    for j, qudi in enumerate(qud):
+        M3[i, j] = equi.diff(qudi)
+    M4[i] = -equi.subs(ud_zero).subs(qd_zero)
+
+M5 = sym.zeros(3, len(qud))
+M6 = sym.zeros(3, 1)
+for i, equi in enumerate(dynamic):
+    for j, qudi in enumerate(qud):
+        M5[i, j] = equi.diff(qudi)
+    M6[i] = -equi.subs(ud_zero).subs(qd_zero)
+
+# together
+M_left = M1.col_join(M3).col_join(M5)
+M_right = M2.col_join(M4).col_join(M6)
+# left = M_left.subs(input_states_dict).subs(para_dict)
+# right = M_right.subs(input_states_dict).subs(para_dict)
+# left.inv()*right #(vs output_dict)
+t9 = time()
+print ("Generating mass and forcing matrix, taking {0} s".format(t9-t8))
+
+
+# Simulation
+# Import
+from scipy.integrate import odeint
+from sympy import (Dummy, lambdify)
+from bicycle import pitch_from_roll_and_steer
+from numpy import linalg
+# symbols
+dummy_symbols = [Dummy() for i in q+u]
+symbols_dict = dict(zip(q+u, dummy_symbols))
+symbols_dict.update({T4: 0.})
+v = sym.symbols('v')
+
+# Substitution
+MM = M_left.subs(symbols_dict).subs(para_dict)
+For = M_right.subs(symbols_dict).subs(para_dict)
+
+# Built quick functions for mm and forcing
+# Built a function of derivs for q_dot and u_dot
+# * here is to convert variables of array (maybe or list) to a tuple for input
+# into the lambdify
+mm = lambdify(dummy_symbols, MM)
+fo = lambdify(dummy_symbols, For)
+def derivs(y, t):
+    return np.array(linalg.solve(mm(*y), fo(*y))).T[0]
+
+# Initial conditions and time vector defining
+# initial condition:
+#                  [q1,   q2,   q4,   q3,   u2,   u4,   u5,   u1,   u3,   u6]
+#   reference      [0.,   0.,   0.,   lam,  0.,   0.,   v/rr, 0.,   0.,   v/rf]
+q1 = 0.; q2 = 0.; q4 = 0.
+q3 = pitch_from_roll_and_steer(q2, q4, mp['rf'], mp['rr'], mp['d1'], mp['d2'],
+                                mp['d3'])
+q_ini = [q1, q2, q4, q3]
+
+v = 5.0 # m/s
+u2 = 0.; u4 = 0.; u5 = v/mp['rr']
+u1 = 0.; u3 = 0.; u6 = v/mp['rf']
+u_ini = [u2, u4, u5, u1, u3, u6]
+
+y0 = np.array(q_ini + u_ini)
+t = np.linspace(0, 10, 1000)
+
+# Intgration: y: (10, 1)
+# reorder the y to correspond [q1, q2, q3, q4, u1, u2, u3, u4, u5, u6]
+#                  instead of [q1, q2, q4, q3, u2, u4, u5, u1, u3, u6]
+y = odeint(derivs, y0, t)
+y_re = np.hstack((y[:, :2], y[:,3:4], y[:,2:3], 
+                  y[:,5:6], y[:,7:9], y[:,4:5], y[:,6:7], y[:,9:]))
+# Plotting
+from matplotlib.pyplot import (figure, plot, legend, xlabel, ylabel, show,
+                                title)
+for i in range(len(q)):
+    figure(1)
+    plot(t, y_re[:, i], label='q'+str(i+1))
+for j in range(len(u)):
+    figure(2)
+    plot(t, y_re[:, j+len(q)], label='u'+str(j+1))
+
+figure(1)
+title('Angle performance with 5 m/s forward speed\n'\
+      'in reference configuration')
+legend(loc=0)
+xlabel('Time (s)')
+ylabel('Angle (rad)')
+
+figure(2)
+title('Rate performance with 5 m/s forward speed\n'\
+      'in reference configuration')
+legend(loc=0)
+xlabel('Time (s)')
+ylabel('Rate (rad/s)')
+show()
+
+t10 = time()
+print ('Simulation and plot, taking {0} s'.format(t10-t9))
