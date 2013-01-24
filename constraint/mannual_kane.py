@@ -10,7 +10,7 @@ import numpy as np
 import os
 import textwrap
 
-from sympy import (sin, cos)
+from sympy import (sin, cos, sqrt)
 from time import time
 from writing import writing_dyequ
 
@@ -398,6 +398,7 @@ para_dict = {}
 for key, value in mp.items():
     para_dict.update(dict(zip([sym.symbols(key)], [value])))
 
+
 """
 # Validate the nonlinear model
 from bicycle import (basu_table_one_input, basu_to_stefen_input, 
@@ -430,7 +431,7 @@ B58 = B5_num.col_join(B8_num)
 output_cal = -B47.inv() * B58
 """
 
-"""
+
 # Steady turning
 t5 = time()
 # Configuration: lean, steer, pitch
@@ -448,23 +449,23 @@ u_dep_dict_num_st = {udei : u_dep_num_sti[0] for udei, u_dep_num_sti
 B8_num_st = B8.subs(steady_conditions).subs(q_conf).subs(para_dict)\
           .subs(qd_kd).subs(u_dep_dict_num_st)
 
-try:
-    u5_value = sym.solve(B8_num_st[0], u5)[0]
-except:
+u5sqr_value = sym.solve(B8_num_st[0], u5**2)
+if u5sqr_value == []:
     raise ValueError("\nOops! Rear wheel rate in configuration {0} cannot be \
 solved. Please select valid configuration according to the plot from <General \
 steady turning of a benchmark bicycle model> by Luke. Good luck!\n"\
-.format(self._configuration))
+.format(q_conf))
 
-if complex(u5_value).real == 0.:
-    print ("Oops! The steady turning in your configuration {0} seems \
+elif u5sqr_value[0] < 0:
+    raise ValueError("Oops! The steady turning in your configuration {0} seems \
 Infeasible since no real value appears in rear wheel rate. Please check the \
-B8_num_st and try another valid one according to the plot from <General steady \
-turning of a benchmark bicycle model> by Luke.\n".format(self._configuration))
+B8_num_st and try another valid configuraiton according to the plot from \
+<General steady turning of a benchmark bicycle model> by Luke.\n"\
+.format(q_conf))
 else:
-    print ("\nIt passed the check of equilibrium calculation and \
-already solved the equilibrium values, but it is still being checked by \
-eigenvalues of the configuration...\n")
+    u5_value = -sqrt(u5sqr_value[0])
+    print ("\nIt passed feasible steady turning checking and already solved \
+the equilibrium values, but it still needs to be checked by eigenvalues of the \ configuration...\n")
 
 equili_dict = {u5: u5_value}
 
@@ -486,9 +487,10 @@ force_num_st = sym.solve(forces_exp_st, auxforces)
 t7 = time()
 print ("Calculating the contact forces for two wheels, taking {0} s. \
 ".format(t7-t6))
-"""
+
 # writing_dyequ(forces)
 
+"""
 t8 = time()
 # Mass and forcing
 # qd_kd, f_a, dynamic  differential about [qd_i, qd_de, ud_i, ud_de]
@@ -509,6 +511,7 @@ for i, equi in enumerate(f_a):
     for j, qudi in enumerate(qud):
         M3[i, j] = equi.diff(qudi)
     M4[i] = -equi.subs(ud_zero).subs(qd_zero)
+assert B5 == -M4
 
 M5 = sym.zeros(3, len(qud))
 M6 = sym.zeros(3, 1)
@@ -516,6 +519,7 @@ for i, equi in enumerate(dynamic):
     for j, qudi in enumerate(qud):
         M5[i, j] = equi.diff(qudi)
     M6[i] = -equi.subs(ud_zero).subs(qd_zero)
+assert B8 == -M6
 
 # together
 M_left = M1.col_join(M3).col_join(M5)
@@ -602,3 +606,4 @@ show()
 
 t10 = time()
 print ('Simulation and plot, taking {0} s'.format(t10-t9))
+"""

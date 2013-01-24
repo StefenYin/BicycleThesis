@@ -111,24 +111,23 @@ class SteadyTurning(object):
         # Here, should consider more condition, but only choose the negative value
         u1, u5, u6, T4 = self._equilibriumSym
 
-        try:
-            u5_value = sym.solve(self._dynamicnonho[0], u5)[0]
-        except:
-            raise ValueError("Oops! Rear wheel rate in configuration {0} cannot be \
-solved. Please select valid configuration according to the plot from <General \
-steady turning of a benchmark bicycle model> by Luke. One way you can check \
-what the equilibrium values will look like is to see the dynamic_nonho_equ by \
-removing self.equi_cal() in Class and running again to see the \
-self._dynamicnonho. Good luck!\n".format(self._configuration))
-
-        if complex(u5_value).real == 0.:
-            print ("Oops! The steady turning in your configuration {0} seems \
-Infeasible since no real value appears in rear wheel rate. Please check the \
-_equilibrium_u values and try another valid one according to the plot from \
-<General steady turning of a benchmark bicycle model> by Luke.\n".format(self._configuration))
+        u5sqr_value = sym.solve(self._dynamicnonho[0], u5**2)
+        if u5sqr_value == []:
+            raise ValueError("\nOops! Rear wheel rate in configuration {0} \
+cannot be solved. Please select valid configuration according to the plot \
+from <General steady turning of a benchmark bicycle model> by Luke. \
+Good luck!\n".format(self._configuration))
+        elif u5sqr_value[0] < 0:
+            raise ValueError("Oops! The steady turning in your configuration \
+{0} seems Infeasible since no real value appears in rear wheel rate. Please \
+check the B8_num_st and try another valid configuraiton according to the plot \
+from <General steady turning of a benchmark bicycle model> by Luke.\n"\
+.format(self._configuration))
         else:
-            print ("It passed the check of equilibrium calculation and \
-already solved the equilibrium values, but it is still being checked...\n")
+            u5_value = -sym.sqrt(u5sqr_value[0])
+            print ("\nIt passed feasible steady turning checking and already \
+solved the equilibrium values, but it still needs to be checked by eigenvalues \
+of the configuration...\n")
 
         u_others_dict = {u5: u5_value}
 
